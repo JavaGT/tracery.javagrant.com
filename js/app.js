@@ -102,13 +102,27 @@ function getStateSignature(state) {
 }
 
 function updateShareUrlButtonState() {
-    const button = byId("saveToUrl");
-    if (!button) {
+    const statusEl = byId("shareSyncStatus");
+    if (!statusEl) {
         return;
     }
 
     const currentSignature = getStateSignature(getSavedState());
-    button.classList.toggle("isStaleShare", currentSignature !== lastSharedStateSignature);
+    const isDirty = currentSignature !== lastSharedStateSignature;
+    statusEl.textContent = isDirty ? "saving..." : "saved";
+    statusEl.classList.toggle("isDirty", isDirty);
+    statusEl.classList.remove("isError");
+}
+
+function setShareSyncErrorState(message) {
+    const statusEl = byId("shareSyncStatus");
+    if (!statusEl) {
+        return;
+    }
+
+    statusEl.textContent = message || "error";
+    statusEl.classList.add("isError");
+    statusEl.classList.remove("isDirty");
 }
 
 function normalizeLoadedState(parsed) {
@@ -1572,11 +1586,12 @@ function updateJsonValidationHint() {
         parseJsonWithPosition(text);
         updateLineNumbers(0);
         scheduleAutoSaveToUrl();
+        updateShareUrlButtonState();
     } catch (error) {
         const location = extractJsonErrorLocation(text, error);
         updateLineNumbers(location ? location.line : 0);
+        setShareSyncErrorState("error");
     }
-    updateShareUrlButtonState();
 }
 
 function setJsonParseError(error, text, prefixMessage) {
@@ -1707,7 +1722,7 @@ function formatJsonInEditor() {
         return true;
     } catch (error) {
         setJsonParseError(error, sourceText, "Cannot save invalid JSON");
-        updateShareUrlButtonState();
+        setShareSyncErrorState("error");
         return false;
     }
 }

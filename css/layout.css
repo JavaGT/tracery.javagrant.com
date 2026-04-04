@@ -158,14 +158,33 @@ button:hover {
 	background: var(--accent-soft);
 }
 
-button.isStaleShare {
-	border-color: var(--accent);
-	background: color-mix(in srgb, var(--accent-soft) 82%, var(--surface) 18%);
-	box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 0 4px color-mix(in srgb, var(--accent-soft) 50%, transparent);
+.toolbarSyncStatus {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 28px;
+	padding: 3px 10px;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface-muted);
+	color: var(--muted);
+	font-size: 0.82rem;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: lowercase;
+	white-space: nowrap;
 }
 
-button.isStaleShare:hover {
-	background: color-mix(in srgb, var(--accent-soft) 70%, var(--surface) 30%);
+.toolbarSyncStatus.isDirty {
+	border-color: var(--accent);
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+
+.toolbarSyncStatus.isError {
+	border-color: var(--error-ink);
+	background: var(--error-bg);
+	color: var(--error-ink);
 }
 
 .toolbarToggle {

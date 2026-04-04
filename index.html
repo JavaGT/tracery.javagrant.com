@@ -15,17 +15,25 @@
 	<div id="app">
 		<section class="toolbar" aria-label="Controls">
 			<div class="toolbarTitle">Tracery Studio</div>
-			<button id="applyCustomGrammar" type="button"><i class="fa-solid fa-rotate" aria-hidden="true"></i><span>Roll</span></button>
-			<button id="saveToUrl" type="button"><i class="fa-solid fa-link" aria-hidden="true"></i><span>Share URL</span></button>
-			<button id="loadJsonButton" type="button"><i class="fa-solid fa-file-import" aria-hidden="true"></i><span>Import JSON</span></button>
-			<button id="exportJson" type="button"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>Export JSON</span></button>
-			<button id="toggleEditorSize" type="button"><i class="fa-solid fa-table-columns" aria-hidden="true"></i><span>Layout: 50/50</span></button>
-			<button id="toggleVerticalSplit" type="button"><i class="fa-solid fa-grip-lines-vertical" aria-hidden="true"></i><span>VSplit: 50/50</span></button>
+			<button id="applyCustomGrammar" type="button"><i class="fa-solid fa-rotate"
+					aria-hidden="true"></i><span>Roll</span></button>
+			<button id="saveToUrl" type="button"><i class="fa-solid fa-link" aria-hidden="true"></i><span>Share
+					URL</span></button>
+			<div id="shareSyncStatus" class="toolbarSyncStatus" role="status" aria-live="polite">saved</div>
+			<button id="loadJsonButton" type="button"><i class="fa-solid fa-file-import"
+					aria-hidden="true"></i><span>Import JSON</span></button>
+			<button id="exportJson" type="button"><i class="fa-solid fa-file-export" aria-hidden="true"></i><span>Export
+					JSON</span></button>
+			<button id="toggleEditorSize" type="button"><i class="fa-solid fa-table-columns"
+					aria-hidden="true"></i><span>Layout: 50/50</span></button>
+			<button id="toggleVerticalSplit" type="button"><i class="fa-solid fa-grip-lines-vertical"
+					aria-hidden="true"></i><span>VSplit: 50/50</span></button>
 			<label class="toolbarToggle" for="autoRerollOnType">
 				<input id="autoRerollOnType" type="checkbox" />
-				<span>Auto-reroll on valid JSON</span>
+				<span>AutoRoll on valid JSON</span>
 			</label>
-			<button id="openConfig" type="button"><i class="fa-solid fa-gear" aria-hidden="true"></i><span>Config</span></button>
+			<button id="openConfig" type="button"><i class="fa-solid fa-gear"
+					aria-hidden="true"></i><span>Config</span></button>
 			<input id="jsonFileInput" type="file" accept="application/json,.json" hidden />
 		</section>
 
@@ -35,7 +43,8 @@
 					<div class="traceryEditorBlock">
 						<div class="editorBlockHeader">
 							<div class="editorBlockTitle">Grammar JSON</div>
-							<button id="formatJson" type="button"><i class="fa-solid fa-brackets-curly" aria-hidden="true"></i><span>Format</span></button>
+							<button id="formatJson" type="button"><i class="fa-solid fa-brackets-curly"
+									aria-hidden="true"></i><span>Format</span></button>
 						</div>
 						<div id="jsonDebug" class="jsonDebug" role="status" aria-live="polite"></div>
 						<div class="editorSurface">
@@ -49,7 +58,8 @@
 					<div class="cssEditorBlock">
 						<div class="editorBlockHeader">
 							<div class="editorBlockTitle">Output CSS</div>
-							<button id="formatCss" type="button"><i class="fa-brands fa-css3-alt" aria-hidden="true"></i><span>Format</span></button>
+							<button id="formatCss" type="button"><i class="fa-brands fa-css3-alt"
+									aria-hidden="true"></i><span>Format</span></button>
 						</div>
 						<div id="cssDebug" class="jsonDebug cssDebug" role="status" aria-live="polite"></div>
 						<div class="cssEditorSurface">
