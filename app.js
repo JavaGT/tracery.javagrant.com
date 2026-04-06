@@ -1,7 +1,15 @@
+// ── Syntax Highlighting Override ───────────────────────────────
+let forceDisableSyntaxHighlighting = false;
+
+function setForceDisableSyntaxHighlighting(val) {
+  forceDisableSyntaxHighlighting = !!val;
+  updateSyntaxHighlighting('grammar');
+  updateSyntaxHighlighting('css');
+}
 // app.js - Tracery Studio main application
 import { createGrammar } from './js/tracery/index.js';
-import { sanitizeHTML, isLikelyHTML } from './outputSanitizer.js';
-import { buildShareURL, loadFromURL, CSS_EMBED_KEY } from './stateCodec.js';
+import { sanitizeHTML, isLikelyHTML } from './js/outputSanitizer.js';
+import { buildShareURL, loadFromURL, CSS_EMBED_KEY } from './js/stateCodec.js';
 
 // ── Default grammar ───────────────────────────────────────────────
 const DEFAULT_GRAMMAR = {
@@ -14,12 +22,35 @@ const DEFAULT_GRAMMAR = {
   "verb": ["wandered", "drifted", "slipped", "danced", "moved silently"],
   "place": ["silver forest", "ruined archive", "dream corridor", "fog library"],
   "trail": ["starlight", "echoes", "soft static", "half-remembered names", "petal ash"],
-  [CSS_EMBED_KEY]: ".card {\n  padding: 1rem 1.2rem;\n  border: 1px solid #2f3547;\n  border-radius: 0.75rem;\n  background: #171a24;\n  color: #eef2ff;\n  max-width: 60ch;\n}\n\n.title {\n  margin: 0 0 0.6rem;\n  font-size: 1.1rem;\n}\n\n.line {\n  margin: 0.35rem 0;\n  line-height: 1.55;\n}\n\n.adj { color: #ffd27a; }\n.creature { color: #88d4ff; font-weight: 600; }\n.trail { color: #b8f2c2; }"
+  [CSS_EMBED_KEY]: ".card {\n margin: 1rem;\n  padding: 1rem 1.2rem;\n  border: 1px solid #2f3547;\n  border-radius: 0.75rem;\n  background: #171a24;\n  color: #eef2ff;\n  max-width: 60ch;\n}\n\n.title {\n  margin: 0 0 0.6rem;\n  font-size: 1.1rem;\n}\n\n.line {\n  margin: 0.35rem 0;\n  line-height: 1.55;\n}\n\n.adj { color: #ffd27a; }\n.creature { color: #88d4ff; font-weight: 600; }\n.trail { color: #b8f2c2; }"
 };
 
 function cloneDefaultGrammar() {
   return JSON.parse(JSON.stringify(DEFAULT_GRAMMAR));
 }
+
+function cloneGrammarWithoutEmbeddedCss(grammar) {
+  const clone = JSON.parse(JSON.stringify(grammar || {}));
+  if (clone && typeof clone === 'object') {
+    delete clone[CSS_EMBED_KEY];
+  }
+  return clone;
+}
+
+function cloneGrammarWithEmbeddedCss(grammar, embeddedCss) {
+  const clone = cloneGrammarWithoutEmbeddedCss(grammar);
+  clone[CSS_EMBED_KEY] = String(embeddedCss || '');
+  return clone;
+}
+
+const THEME_STORAGE_KEY = 'traceryThemePreference';
+const VALID_THEMES = new Set(['auto', 'light', 'dark', 'pink-pop', 'noir', 'academic', 'arcade', 'vscode-dark-plus']);
+const SYNTAX_HIGHLIGHT_LIMITS = {
+  disableAtChars: 24000,
+  enableAtChars: 18000,
+  disableAtLines: 1200,
+  enableAtLines: 900
+};
 
 // ── State ─────────────────────────────────────────────────────────
 let grammarObj = {};
@@ -35,10 +66,16 @@ let lastValidGrammar = null;
 let rerollCount = 0;
 let autoSyncTimer = null;
 let autoSyncVersion = 0;
+let syntaxHighlightingEnabled = {
+  grammar: true,
+  css: true
+};
 
 // ── DOM refs ──────────────────────────────────────────────────────
 const grammarEditor = document.getElementById('grammar-editor');
 const cssEditor = document.getElementById('css-editor');
+const grammarHighlight = document.getElementById('grammar-highlight');
+const cssHighlight = document.getElementById('css-highlight');
 const grammarGutter = document.getElementById('grammar-gutter');
 const cssGutter = document.getElementById('css-gutter');
 const errorOverlay = document.getElementById('error-overlay');
@@ -49,6 +86,7 @@ const btnFormat = document.getElementById('btn-format');
 const btnSave = document.getElementById('btn-save');
 const btnLoad = document.getElementById('btn-load');
 const btnLoadDefault = document.getElementById('btn-load-default');
+const btnSettings = document.getElementById('btn-settings');
 const btnLoadFile = document.getElementById('btn-load-file');
 const saveIndicator = document.getElementById('save-indicator');
 const statusSymbols = document.getElementById('status-symbols');
@@ -59,8 +97,243 @@ const modalOverlay = document.getElementById('modal-overlay');
 const modalUrl = document.getElementById('modal-url');
 const btnModalClose = document.getElementById('btn-modal-close');
 const btnModalCopy = document.getElementById('btn-modal-copy');
+const settingsOverlay = document.getElementById('settings-overlay');
+const settingsThemeSelect = document.getElementById('settings-theme-select');
+const btnSettingsClose = document.getElementById('btn-settings-close');
 const toast = document.getElementById('toast');
 const resizeHandles = document.querySelectorAll('.resize-handle');
+
+function getSavedThemePreference() {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'auto';
+    return VALID_THEMES.has(saved) ? saved : 'auto';
+  } catch {
+    return 'auto';
+  }
+}
+
+function saveThemePreference(value) {
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, value);
+  } catch {
+    // Ignore storage write failures.
+  }
+}
+
+function applyThemePreference(value) {
+  const theme = VALID_THEMES.has(value) ? value : 'auto';
+  const root = document.documentElement;
+
+  if (theme === 'auto') {
+    root.removeAttribute('data-theme');
+  } else {
+    root.setAttribute('data-theme', theme);
+  }
+
+  if (settingsThemeSelect) {
+    settingsThemeSelect.value = theme;
+  }
+}
+
+function openSettingsModal() {
+  if (!settingsOverlay) {
+    return;
+  }
+  settingsOverlay.classList.add('open');
+}
+
+function closeSettingsModal() {
+  if (!settingsOverlay) {
+    return;
+  }
+  settingsOverlay.classList.remove('open');
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function getTextMetrics(text) {
+  const source = String(text || '');
+  return {
+    chars: source.length,
+    lines: Math.max(1, source.split('\n').length)
+  };
+}
+
+function shouldHighlightSyntax(kind, text) {
+  if (forceDisableSyntaxHighlighting) return false;
+  const metrics = getTextMetrics(text);
+  const enabled = syntaxHighlightingEnabled[kind] !== false;
+  if (enabled) {
+    return metrics.chars <= SYNTAX_HIGHLIGHT_LIMITS.disableAtChars
+      && metrics.lines <= SYNTAX_HIGHLIGHT_LIMITS.disableAtLines;
+  }
+  return metrics.chars <= SYNTAX_HIGHLIGHT_LIMITS.enableAtChars
+    && metrics.lines <= SYNTAX_HIGHLIGHT_LIMITS.enableAtLines;
+}
+
+function getEditorStage(kind) {
+  return kind === 'grammar'
+    ? document.getElementById('grammar-editor-wrap')?.querySelector('.editor-stage')
+    : document.getElementById('css-editor-wrap')?.querySelector('.editor-stage');
+}
+
+function getHighlightElement(kind) {
+  return kind === 'grammar' ? grammarHighlight : cssHighlight;
+}
+
+function getEditorElement(kind) {
+  return kind === 'grammar' ? grammarEditor : cssEditor;
+}
+
+function setSyntaxHighlightingState(kind, enabled) {
+  syntaxHighlightingEnabled[kind] = enabled;
+  const stage = getEditorStage(kind);
+  if (!stage) {
+    return;
+  }
+
+  stage.classList.toggle('syntax-disabled', !enabled);
+}
+
+function highlightJson(text) {
+  const src = String(text || '');
+  const tokenRe = /"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|\btrue\b|\bfalse\b|\bnull\b|[{}\[\],:]/g;
+  let out = '';
+  let cursor = 0;
+  let match;
+
+  while ((match = tokenRe.exec(src)) !== null) {
+    const token = match[0];
+    const idx = match.index;
+    out += escapeHtml(src.slice(cursor, idx));
+
+    if (token[0] === '"') {
+      const trailing = src.slice(idx + token.length);
+      const isKey = /^\s*:/.test(trailing);
+      out += `<span class="${isKey ? 'tok-key' : 'tok-string'}">${escapeHtml(token)}</span>`;
+    } else if (token === 'true' || token === 'false') {
+      out += `<span class="tok-bool">${token}</span>`;
+    } else if (token === 'null') {
+      out += '<span class="tok-null">null</span>';
+    } else if (/^-?\d/.test(token)) {
+      out += `<span class="tok-number">${token}</span>`;
+    } else {
+      out += `<span class="tok-punc">${escapeHtml(token)}</span>`;
+    }
+
+    cursor = idx + token.length;
+  }
+
+  out += escapeHtml(src.slice(cursor));
+  return out;
+}
+
+function highlightCss(text) {
+  const src = String(text || '');
+  const tokenRe = /(\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(#[A-Za-z0-9_-]+|\.[A-Za-z0-9_-]+|[A-Za-z_-][A-Za-z0-9_-]*)(?=\s*\{)|([A-Za-z-]+)(?=\s*:)|(:|;|\{|\})/g;
+  let out = '';
+  let cursor = 0;
+  let match;
+
+  while ((match = tokenRe.exec(src)) !== null) {
+    out += escapeHtml(src.slice(cursor, match.index));
+    const [full, comment, str, selector, property, punct] = match;
+
+    if (comment) {
+      out += `<span class="tok-comment">${escapeHtml(comment)}</span>`;
+    } else if (str) {
+      out += `<span class="tok-value">${escapeHtml(str)}</span>`;
+    } else if (selector) {
+      out += `<span class="tok-selector">${escapeHtml(selector)}</span>`;
+    } else if (property) {
+      out += `<span class="tok-property">${escapeHtml(property)}</span>`;
+    } else if (punct) {
+      out += `<span class="tok-punc">${escapeHtml(punct)}</span>`;
+    } else {
+      out += escapeHtml(full);
+    }
+
+    cursor = match.index + full.length;
+  }
+
+  out += escapeHtml(src.slice(cursor));
+  return out;
+}
+
+function normalizeHighlightText(text) {
+  const src = String(text || '');
+  return src.endsWith('\n') ? src + ' ' : src;
+}
+
+function updateSyntaxHighlighting(kind) {
+  const editor = getEditorElement(kind);
+  const highlight = getHighlightElement(kind);
+  if (!editor || !highlight) {
+    return;
+  }
+
+  const enabled = shouldHighlightSyntax(kind, editor.value || '');
+  setSyntaxHighlightingState(kind, enabled);
+
+  if (!enabled) {
+    highlight.innerHTML = '';
+    return;
+  }
+
+  const source = normalizeHighlightText(editor.value || '');
+
+  if (kind === 'grammar') {
+    highlight.innerHTML = highlightJson(source);
+  } else {
+    highlight.innerHTML = highlightCss(source);
+  }
+}
+
+function syncHighlightScroll(editor, highlight) {
+  // Toggle this to true to enable debug logging
+  const DEBUG_SCROLL_SYNC = true;
+  if (!editor || !highlight) {
+    return;
+  }
+
+  const editorMaxTop = Math.max(0, editor.scrollHeight - editor.clientHeight);
+  const highlightMaxTop = Math.max(0, highlight.scrollHeight - highlight.clientHeight);
+  const editorMaxLeft = Math.max(0, editor.scrollWidth - editor.clientWidth);
+  const highlightMaxLeft = Math.max(0, highlight.scrollWidth - highlight.clientWidth);
+
+  const topRatio = editorMaxTop > 0 ? editor.scrollTop / editorMaxTop : 0;
+  const leftRatio = editorMaxLeft > 0 ? editor.scrollLeft / editorMaxLeft : 0;
+
+  let targetTop = topRatio * highlightMaxTop;
+  let targetLeft = leftRatio * highlightMaxLeft;
+
+  // Calibration for bottom edge
+  if (editor.scrollTop + editor.clientHeight >= editor.scrollHeight - 1) {
+    targetTop = highlight.scrollHeight - highlight.clientHeight;
+  }
+  if (editor.scrollLeft === 0) {
+    targetLeft = 0;
+  }
+
+
+  highlight.scrollTop = targetTop;
+  highlight.scrollLeft = targetLeft;
+}
+
+function renderEditorHighlights() {
+  updateSyntaxHighlighting('grammar');
+  updateSyntaxHighlighting('css');
+}
+
+function getLineFromOffset(text, offset) {
+  const safe = Math.max(0, Math.min(Number(offset) || 0, String(text).length));
+  return String(text).slice(0, safe).split('\n').length;
+}
 
 // ── Shadow DOM setup ─────────────────────────────────────────────
 function initShadow() {
@@ -71,11 +344,12 @@ function initShadow() {
 }
 
 // ── Gutter rendering ─────────────────────────────────────────────
-function updateGutter(editor, gutter) {
+function updateGutter(editor, gutter, errorLine = 0) {
   const lines = editor.value.split('\n').length;
   let html = '';
   for (let i = 1; i <= lines; i++) {
-    html += `<div class="gutter-line">${i}</div>`;
+    const errClass = i === errorLine ? ' error-line' : '';
+    html += `<div class="gutter-line${errClass}">${i}</div>`;
   }
   gutter.innerHTML = html;
 
@@ -95,12 +369,22 @@ function parseGrammar(text) {
     }
     return { ok: true, obj };
   } catch (e) {
-    // Try to get line/col from error message
     const msg = e.message;
+    let errorLine = 0;
     let loc = '';
-    const m = msg.match(/position (\d+)/i) || msg.match(/at line (\d+)/i);
-    if (m) loc = ` (position ${m[1]})`;
-    return { ok: false, error: msg + loc };
+    const posMatch = msg.match(/position\s+(\d+)/i);
+    const lineMatch = msg.match(/line\s+(\d+)/i);
+
+    if (posMatch) {
+      const pos = Number(posMatch[1]);
+      errorLine = getLineFromOffset(text, pos);
+      loc = ` (line ${errorLine}, position ${pos})`;
+    } else if (lineMatch) {
+      errorLine = Number(lineMatch[1]) || 0;
+      loc = ` (line ${errorLine})`;
+    }
+
+    return { ok: false, error: msg + loc, errorLine };
   }
 }
 
@@ -138,8 +422,7 @@ function getSharableCompiledState() {
     return { ok: false };
   }
 
-  const candidate = parsed.obj;
-  candidate[CSS_EMBED_KEY] = cssText;
+  const candidate = cloneGrammarWithEmbeddedCss(parsed.obj, cssText);
 
   try {
     const compiled = createGrammar(candidate);
@@ -193,21 +476,13 @@ function scheduleAutoUrlSync() {
 function onGrammarChange() {
   const text = grammarEditor.value;
   updateGutter(grammarEditor, grammarGutter);
+  updateSyntaxHighlighting('grammar');
+  syncHighlightScroll(grammarEditor, grammarHighlight);
 
   const result = parseGrammar(text);
   if (result.ok) {
-    // Extract CSS from grammar before using
-    cssText = result.obj[CSS_EMBED_KEY] || '';
     grammarObj = result.obj;
     lastValidGrammar = result.obj;
-
-    // If CSS editor is empty or hasn't diverged, sync from grammar
-    // (grammar is source of truth for CSS)
-    if (cssEditor.value !== cssText) {
-      const wasSyncing = true;
-      cssEditor.value = cssText;
-      updateGutter(cssEditor, cssGutter);
-    }
 
     hideError();
     updateStatus(true, Object.keys(result.obj).filter(k => !k.startsWith('_')).length);
@@ -215,8 +490,7 @@ function onGrammarChange() {
     if (autoReroll) render();
     scheduleAutoUrlSync();
   } else {
-    hideError();
-    showError(result.error);
+    showError(result.error, result.errorLine || 0);
     updateStatus(false, 0);
   }
 
@@ -231,15 +505,12 @@ function onCssChange() {
   const text = cssEditor.value;
   cssText = text;
   updateGutter(cssEditor, cssGutter);
+  updateSyntaxHighlighting('css');
+  syncHighlightScroll(cssEditor, cssHighlight);
 
-  // Embed CSS into grammar obj and re-render
   if (grammarObj) {
-    grammarObj[CSS_EMBED_KEY] = text;
     lastValidGrammar = grammarObj;
   }
-
-  // Update grammar editor to reflect CSS change
-  syncGrammarFromState();
 
   if (autoReroll || true) {  // always apply CSS live
     if (shadowRoot) {
@@ -254,18 +525,6 @@ function onCssChange() {
     cssHistory = h; cssHistoryIdx = i;
   });
 }
-
-function syncGrammarFromState() {
-  if (!grammarObj || !lastValidGrammar) return;
-  try {
-    const current = JSON.parse(grammarEditor.value);
-    current[CSS_EMBED_KEY] = cssText;
-    grammarObj = current;
-    lastValidGrammar = current;
-    // Don't overwrite editor text to avoid cursor jump unless needed
-  } catch { }
-}
-
 // ── History ───────────────────────────────────────────────────────
 function pushHistory(arr, idx, val, setter) {
   const newArr = arr.slice(0, idx + 1);
@@ -287,7 +546,11 @@ function handleUndo(editor, gutter) {
     cssEditor.value = cssHistory[cssHistoryIdx];
     onCssChange();
   }
-  updateGutter(editor, gutter);
+  if (editor === grammarEditor) {
+    updateGutter(editor, gutter, 0);
+  } else {
+    updateGutter(editor, gutter);
+  }
 }
 
 function handleRedo(editor, gutter) {
@@ -302,13 +565,21 @@ function handleRedo(editor, gutter) {
     cssEditor.value = cssHistory[cssHistoryIdx];
     onCssChange();
   }
-  updateGutter(editor, gutter);
+  if (editor === grammarEditor) {
+    updateGutter(editor, gutter, 0);
+  } else {
+    updateGutter(editor, gutter);
+  }
 }
 
 // ── Status & error UI ─────────────────────────────────────────────
-function showError(msg) {
+function showError(msg, errorLine = 0) {
   errorOverlay.textContent = '✗ ' + msg;
   errorOverlay.classList.add('visible');
+  // Add bottom padding to grammar editor so all lines are visible above overlay
+  grammarEditor.style.paddingBottom = '38px';
+  grammarHighlight.style.paddingBottom = '38px';
+  updateGutter(grammarEditor, grammarGutter, errorLine);
   if (statusValid) {
     statusValid.className = 'status-item error';
     statusValid.innerHTML = '<span class="dot red"></span> JSON error';
@@ -317,6 +588,8 @@ function showError(msg) {
 
 function hideError() {
   errorOverlay.classList.remove('visible');
+  grammarEditor.style.paddingBottom = '';
+  grammarHighlight.style.paddingBottom = '';
 }
 
 function updateStatus(valid, symbolCount) {
@@ -360,11 +633,12 @@ function formatGrammar() {
 
 // ── Load grammar into editors ─────────────────────────────────────
 function loadGrammar(obj) {
-  grammarObj = obj;
-  cssText = obj[CSS_EMBED_KEY] || '';
-  lastValidGrammar = obj;
+  const displayGrammar = cloneGrammarWithoutEmbeddedCss(obj);
+  grammarObj = displayGrammar;
+  cssText = obj && typeof obj[CSS_EMBED_KEY] === 'string' ? obj[CSS_EMBED_KEY] : '';
+  lastValidGrammar = displayGrammar;
 
-  const jsonStr = JSON.stringify(obj, null, 2);
+  const jsonStr = JSON.stringify(displayGrammar, null, 2);
   grammarEditor.value = jsonStr;
   cssEditor.value = cssText;
 
@@ -375,10 +649,16 @@ function loadGrammar(obj) {
 
   updateGutter(grammarEditor, grammarGutter);
   updateGutter(cssEditor, cssGutter);
+  updateSyntaxHighlighting('grammar');
+  updateSyntaxHighlighting('css');
+  syncHighlightScroll(grammarEditor, grammarHighlight);
+  syncHighlightScroll(cssEditor, cssHighlight);
   hideError();
   updateStatus(true, Object.keys(obj).filter(k => !k.startsWith('_')).length);
   render();
   markSaved();
+  // Update the URL to reflect the loaded grammar state
+  scheduleAutoUrlSync();
 }
 
 // ── Save to file ──────────────────────────────────────────────────
@@ -388,8 +668,7 @@ function saveToFile() {
     showToast('Fix JSON errors before saving');
     return;
   }
-  const obj = result.obj;
-  obj[CSS_EMBED_KEY] = cssText;
+  const obj = cloneGrammarWithEmbeddedCss(result.obj, cssText);
   const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -433,8 +712,7 @@ async function shareGrammar() {
     showToast('Fix JSON errors before sharing');
     return;
   }
-  const obj = result.obj;
-  obj[CSS_EMBED_KEY] = cssText;
+  const obj = cloneGrammarWithEmbeddedCss(result.obj, cssText);
 
   const url = await buildShareURL(obj);
   modalUrl.value = url;
@@ -576,6 +854,21 @@ function showToast(msg) {
 
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
+
+    // Add syntax highlighting override toggle to settings
+    if (settingsOverlay) {
+      const row = document.createElement('label');
+      row.className = 'settings-row';
+      row.innerHTML = `<span>Disable syntax highlighting</span><input type="checkbox" id="force-disable-syntax-hl">`;
+      settingsOverlay.querySelector('.modal.settings-modal .modal-actions').before(row);
+      const cb = row.querySelector('#force-disable-syntax-hl');
+      cb.checked = forceDisableSyntaxHighlighting;
+      cb.addEventListener('change', e => setForceDisableSyntaxHighlighting(e.target.checked));
+    }
+  const initialTheme = getSavedThemePreference();
+  applyThemePreference(initialTheme);
+  saveThemePreference(initialTheme);
+
   initShadow();
   setupResize();
   setupDragDrop(grammarEditor);
@@ -599,6 +892,7 @@ async function init() {
       () => handleRedo(grammarEditor, grammarGutter)));
   grammarEditor.addEventListener('scroll', () => {
     grammarGutter.scrollTop = grammarEditor.scrollTop;
+    syncHighlightScroll(grammarEditor, grammarHighlight);
   });
 
   // CSS editor events
@@ -609,6 +903,7 @@ async function init() {
       () => handleRedo(cssEditor, cssGutter)));
   cssEditor.addEventListener('scroll', () => {
     cssGutter.scrollTop = cssEditor.scrollTop;
+    syncHighlightScroll(cssEditor, cssHighlight);
   });
 
   // Button events
@@ -618,6 +913,9 @@ async function init() {
   btnLoad.addEventListener('click', openFileDialog);
   if (btnLoadDefault) {
     btnLoadDefault.addEventListener('click', loadDefaultTemplate);
+  }
+  if (btnSettings) {
+    btnSettings.addEventListener('click', openSettingsModal);
   }
   btnShare.addEventListener('click', shareGrammar);
 
@@ -644,6 +942,27 @@ async function init() {
     if (e.target === modalOverlay) modalOverlay.classList.remove('open');
   });
 
+  if (settingsThemeSelect) {
+    settingsThemeSelect.addEventListener('change', (e) => {
+      const theme = e.target.value;
+      applyThemePreference(theme);
+      saveThemePreference(theme);
+      showToast('Theme: ' + theme);
+    });
+  }
+
+  if (btnSettingsClose) {
+    btnSettingsClose.addEventListener('click', closeSettingsModal);
+  }
+
+  if (settingsOverlay) {
+    settingsOverlay.addEventListener('click', (e) => {
+      if (e.target === settingsOverlay) {
+        closeSettingsModal();
+      }
+    });
+  }
+
   // Undo/Redo buttons
   document.getElementById('btn-undo-grammar').addEventListener('click', () => handleUndo(grammarEditor, grammarGutter));
   document.getElementById('btn-redo-grammar').addEventListener('click', () => handleRedo(grammarEditor, grammarGutter));
@@ -652,12 +971,20 @@ async function init() {
 
   // Global keyboard shortcuts
   document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && settingsOverlay && settingsOverlay.classList.contains('open')) {
+      closeSettingsModal();
+      return;
+    }
+
     const isMac = navigator.platform.includes('Mac');
     const ctrl = isMac ? e.metaKey : e.ctrlKey;
     if (ctrl && e.key === 'Enter') { e.preventDefault(); render(); }
     if (ctrl && e.shiftKey && e.key === 'F') { e.preventDefault(); formatGrammar(); }
     if (ctrl && e.key === 's') { e.preventDefault(); saveToFile(); }
   });
+
+  updateSyntaxHighlighting('grammar');
+  updateSyntaxHighlighting('css');
 }
 
 document.addEventListener('DOMContentLoaded', init);

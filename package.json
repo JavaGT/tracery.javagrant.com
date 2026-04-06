@@ -1,15 +1,14 @@
 {
-  "name": "tracery",
+  "name": "tracery-studio",
   "version": "1.0.0",
-  "description": "Tracery modern ES module source",
+  "description": "Browser-native Tracery grammar authoring studio",
   "type": "module",
   "scripts": {
-    "start": "python3 -m http.server 8000",
-    "dev": "python3 -m http.server 8000",
-    "test": "find js -name '*.js' -print0 | xargs -0 -n1 node --check"
+    "start": "python3 -m http.server 8080",
+    "serve": "npx serve .",
+    "dev": "npx live-server --port=8080"
   },
-  "exports": {
-    ".": "./js/tracery/main.js",
-    "./core": "./js/tracery/traceryCore.js"
-  }
+  "keywords": ["tracery", "generative-text", "grammar", "tool"],
+  "license": "MIT",
+  "devDependencies": {}
 }
