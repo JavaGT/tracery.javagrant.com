@@ -419,34 +419,11 @@ function updateSyntaxHighlighting(kind) {
 }
 
 function syncHighlightScroll(editor, highlight) {
-  // Toggle this to true to enable debug logging
-  const DEBUG_SCROLL_SYNC = true;
   if (!editor || !highlight) {
     return;
   }
-
-  const editorMaxTop = Math.max(0, editor.scrollHeight - editor.clientHeight);
-  const highlightMaxTop = Math.max(0, highlight.scrollHeight - highlight.clientHeight);
-  const editorMaxLeft = Math.max(0, editor.scrollWidth - editor.clientWidth);
-  const highlightMaxLeft = Math.max(0, highlight.scrollWidth - highlight.clientWidth);
-
-  const topRatio = editorMaxTop > 0 ? editor.scrollTop / editorMaxTop : 0;
-  const leftRatio = editorMaxLeft > 0 ? editor.scrollLeft / editorMaxLeft : 0;
-
-  let targetTop = topRatio * highlightMaxTop;
-  let targetLeft = leftRatio * highlightMaxLeft;
-
-  // Calibration for bottom edge
-  if (editor.scrollTop + editor.clientHeight >= editor.scrollHeight - 1) {
-    targetTop = highlight.scrollHeight - highlight.clientHeight;
-  }
-  if (editor.scrollLeft === 0) {
-    targetLeft = 0;
-  }
-
-
-  highlight.scrollTop = targetTop;
-  highlight.scrollLeft = targetLeft;
+  highlight.scrollTop = editor.scrollTop;
+  highlight.scrollLeft = editor.scrollLeft;
 }
 
 function renderEditorHighlights() {
