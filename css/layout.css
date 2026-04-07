@@ -400,6 +400,15 @@ body {
   -webkit-text-fill-color: var(--color-text-bright);
 }
 
+body.debug-show-textarea .editor-highlight {
+  display: none !important;
+}
+
+body.debug-show-textarea .overlay-input {
+  color: var(--color-text-bright) !important;
+  -webkit-text-fill-color: var(--color-text-bright) !important;
+}
+
 .editor-gutter {
   width: 42px;
   flex-shrink: 0;

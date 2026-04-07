@@ -1297,6 +1297,14 @@ async function init() {
     const cb = row.querySelector('#force-disable-syntax-hl');
     cb.checked = forceDisableSyntaxHighlighting;
     cb.addEventListener('change', e => setForceDisableSyntaxHighlighting(e.target.checked));
+
+    // CSS override setting for underlying text areas
+    const row2 = document.createElement('label');
+    row2.className = 'settings-row';
+    row2.innerHTML = `<span>Show raw editor text areas (CSS Override)</span><input type="checkbox" id="force-show-raw">`;
+    settingsOverlay.querySelector('.settings-row').parentNode.appendChild(row2);
+    const cb2 = row2.querySelector('#force-show-raw');
+    cb2.addEventListener('change', e => document.body.classList.toggle('debug-show-textarea', e.target.checked));
   }
 
   // Populate Help Documentation dynamically from the source of truth
