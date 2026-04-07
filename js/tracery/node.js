@@ -44,6 +44,9 @@ class BaseNode {
             if (typeof section == "string" || section instanceof String) {
                 return new TextNode(root, section);
             }
+            if (section && section.type === 'action') {
+                return new ActionNode(root, section.raw);
+            }
             return new TagNode(root, section);
         });
     }
@@ -137,6 +140,37 @@ class TextNode extends BaseNode {
 
     toLabel() {
         return this.text;
+    }
+}
+
+// ActionNode handles standalone [key:value] push/pop sections produced by parseRule.
+// It contributes no text to the output but mutates the grammar's rule stack.
+class ActionNode extends BaseNode {
+    constructor(parent, raw) {
+        super();
+        this.setParent(parent);
+        this.raw = raw;
+        this.finalText = '';
+    }
+
+    expand() {
+        // Expand any embedded tags inside the action content (e.g. "pet:#animal#" → "pet:fox")
+        const amended = this.grammar.flatten(this.raw);
+        const colonIdx = amended.indexOf(':');
+        if (colonIdx >= 0) {
+            const key = amended.slice(0, colonIdx).trim();
+            const val = amended.slice(colonIdx + 1).trim();
+            if (val === 'POP') {
+                this.grammar.popRules(key);
+            } else {
+                this.grammar.pushRules(key, [val]);
+            }
+        }
+        this.finalText = '';
+    }
+
+    toLabel() {
+        return '[' + this.raw + ']';
     }
 }
 

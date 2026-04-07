@@ -8,7 +8,14 @@
     "serve": "npx serve .",
     "dev": "npx live-server --port=8080"
   },
-  "keywords": ["tracery", "generative-text", "grammar", "tool"],
+  "keywords": [
+    "tracery",
+    "generative-text",
+    "grammar",
+    "tool"
+  ],
   "license": "MIT",
-  "devDependencies": {}
+  "dependencies": {
+    "tracery-grammar": "^2.8.4"
+  }
 }

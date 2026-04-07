@@ -148,16 +148,15 @@ class Grammar {
     getRule(key, seed) {
         var symbol = this.symbols[key];
         if (symbol === undefined) {
-            var r = new Rule("{{" + key + "}}");
-
-            r.error = "Missing symbol " + key;
+            var r = new Rule("((" + key + "??))");
+            r.error = "Missing symbol '" + key + "'";
             return r;
         }
 
         var rule = symbol.getRule();
         if (rule === undefined) {
-            var r = new Rule("[" + key + "]");
-            r.error = "Symbol " + key + " has no rule";
+            var r = new Rule("((" + key + ":empty))");
+            r.error = "Symbol '" + key + "' has no rules";
             return r;
         }
 

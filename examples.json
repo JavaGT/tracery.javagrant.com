@@ -1,0 +1,1513 @@
+[
+  {
+    "id": "tracery-test-suite",
+    "category": "Test Suite",
+    "title": "Tracery Test Suite",
+    "description": "All core Tracery features tested in one grammar: plain text, push/pop variables, tag-embedded actions, recursive push, complex pronoun/occupation grammar, and modifiers — based on the original Kate Compton test files.",
+    "grammar": {
+      "origin": [
+        "<div class='ts'><h1>Tracery Test Suite</h1>#t_plaintext##t_push##t_pushpop##t_tagaction##t_recursive##t_complex##t_modifiers#</div>"
+      ],
+      "t_plaintext": [
+        "<section><h2>Plain Text</h2><p class='r'>#plaintext_short#</p><p class='r'>#plaintext_long#</p></section>"
+      ],
+      "plaintext_short": [
+        "a"
+      ],
+      "plaintext_long": [
+        "Emma Woodhouse, handsome, clever, and rich, with a comfortable home and happy disposition, seemed to unite some of the best blessings of existence."
+      ],
+      "t_push": [
+        "<section><h2>Push Variable</h2><p class='label'>Bracket notation sets a named variable, usable anywhere in the same rule:</p><p class='r out'>[pet:#animal#]You have a #pet#. Your #pet# is #mood#.</p></section>"
+      ],
+      "t_pushpop": [
+        "<section><h2>Push / POP Stack</h2><p class='label'>Push overwrites, POP restores — a basic variable stack:</p><p class='r out'>[pet:#animal#]Outer pet: <b>#pet#</b>. [pet:#animal#]Inner pet: <b>#pet#</b>. [pet:POP]Restored: <b>#pet#</b>.</p></section>"
+      ],
+      "t_tagaction": [
+        "<section><h2>Pre-Action Inside Tag</h2><p class='label'>Embed a push inside a tag expression — the push is scoped to that expansion only:</p><p class='r out'>#[pet:#animal#]nonrecursiveStory#</p></section>"
+      ],
+      "t_recursive": [
+        "<section><h2>Recursive Push</h2><p class='label'>Pet is set, a nested story swaps it, then POP restores the original:</p><p class='r out'>[pet:#animal#]#recursiveStory#</p></section>"
+      ],
+      "t_complex": [
+        "<section><h2>Complex Grammar (Pronouns + Occupation)</h2><p class='label'>Sets pronouns and occupation at origin, then generates a story:</p><p class='r out'>#origin_complex#</p></section>"
+      ],
+      "t_modifiers": [
+        "<section><h2>Modifiers</h2>#mod_ex##mod_ex##mod_ex#</section>"
+      ],
+      "mod_ex": [
+        "<p class='r'>[w:#animal#]<code>#w#</code> → <b>#w.capitalize#</b> (capitalize)</p>",
+        "<p class='r'>[w:#animal#]<code>#w#</code> → <b>#w.s#</b> (plural)</p>",
+        "<p class='r'>[w:#verb#]<code>#w#</code> → <b>#w.ed#</b> (past tense)</p>",
+        "<p class='r'>[w:#animal#]<code>#w#</code> → <b>#w.a#</b> (a/an)</p>"
+      ],
+      "animal": [
+        "bear",
+        "cat",
+        "dog",
+        "fox",
+        "giraffe",
+        "hippopotamus"
+      ],
+      "mood": [
+        "quiet",
+        "morose",
+        "gleeful",
+        "happy",
+        "clever",
+        "curious",
+        "serene"
+      ],
+      "verb": [
+        "wander",
+        "dance",
+        "sleep",
+        "run",
+        "listen"
+      ],
+      "nonrecursiveStory": [
+        "The #pet# went to the beach."
+      ],
+      "recursiveStory": [
+        "The #pet# opened a book about[pet:#mood# #animal#] #pet.a#. #story_r#[pet:POP] The #pet# closed the book."
+      ],
+      "story_r": [
+        "#pet.capitalize# wandered through the pages."
+      ],
+      "name": [
+        "Cheri",
+        "Fox",
+        "Morgana",
+        "Jedoo",
+        "Brick",
+        "Shadow",
+        "Krox"
+      ],
+      "monster": [
+        "dragon",
+        "ogre",
+        "witch",
+        "wizard",
+        "goblin",
+        "golem",
+        "giant"
+      ],
+      "setPronouns": [
+        "[heroThey:they][heroThem:them][heroTheir:their]",
+        "[heroThey:she][heroThem:her][heroTheir:her]",
+        "[heroThey:he][heroThem:him][heroTheir:his]"
+      ],
+      "setOccupation": [
+        "[occupation:baker][didStuff:baked bread,decorated cupcakes,made croissants]",
+        "[occupation:warrior][didStuff:fought #monster.a#,saved a village from #monster.a#,defeated #monster.a#]"
+      ],
+      "heroStory": [
+        "#hero.capitalize# was a great #occupation#, and this song tells of #heroTheir# adventure. #hero.capitalize# #didStuff#, then #heroThey# #didStuff#, then #heroThey# went home to read a book."
+      ],
+      "origin_complex": [
+        "[hero:#name#][occupation:baker][didStuff:baked bread,decorated cupcakes,made croissants][heroThey:they][heroThem:them][heroTheir:their]#heroStory#",
+        "[hero:#name#][occupation:baker][didStuff:baked bread,decorated cupcakes,made croissants][heroThey:she][heroThem:her][heroTheir:her]#heroStory#",
+        "[hero:#name#][occupation:warrior][didStuff:fought a #monster#,saved a village,defeated a #monster#][heroThey:he][heroThem:him][heroTheir:his]#heroStory#"
+      ],
+      "_cssStyles": ".ts{font-family:sans-serif;padding:1rem;max-width:65ch;color:#1a1a2e} h1{font-size:1.4rem;border-bottom:3px solid #6366f1;padding-bottom:.4rem;color:#4338ca} h2{font-size:1rem;margin:0 0 .4rem;color:#6366f1} section{background:#f8f8ff;border:1px solid #e0e0f0;border-radius:8px;padding:.8rem 1rem;margin-bottom:.8rem} .label{font-size:.85rem;color:#555;margin:.2rem 0 .4rem} .r{margin:.3rem 0;line-height:1.6} .src{font-size:.85rem} .out{background:#fff;border-left:3px solid #6366f1;padding:.3rem .6rem;border-radius:0 4px 4px 0} code{background:#eef;padding:1px 5px;border-radius:3px;font-size:.88em}"
+    }
+  },
+  {
+    "id": "tracery-basics",
+    "category": "Tracery",
+    "title": "Symbols & Rules",
+    "description": "Core Tracery: define symbols and reference them with #symbol# to build varied sentences.",
+    "grammar": {
+      "origin": [
+        "<p class='out'>#sentence#</p>",
+        "<p class='out'>#sentence# #sentence#</p>"
+      ],
+      "sentence": [
+        "The #adj# #animal# #verb# across the #place#.",
+        "A #adj# #animal# once told me: \"#phrase#\".",
+        "Deep in the #place#, a #adj# #animal# was #verb#."
+      ],
+      "adj": [
+        "mysterious",
+        "ancient",
+        "tiny",
+        "glowing",
+        "restless"
+      ],
+      "animal": [
+        "fox",
+        "wolf",
+        "moth",
+        "raven",
+        "tortoise"
+      ],
+      "verb": [
+        "wandered",
+        "slept",
+        "sang",
+        "waited",
+        "danced"
+      ],
+      "place": [
+        "silver forest",
+        "ruined archive",
+        "fog library",
+        "quiet valley"
+      ],
+      "phrase": [
+        "nothing is ever lost",
+        "keep moving forward",
+        "every door opens twice"
+      ],
+      "_cssStyles": ".out{font-family:Georgia,serif;font-size:1.15rem;line-height:1.9;padding:1.2rem;max-width:55ch;color:#2a2a2a}"
+    }
+  },
+  {
+    "id": "tracery-modifiers",
+    "category": "Tracery",
+    "title": "Modifiers",
+    "description": "Use .capitalize, .s (plural) and .ed after a symbol to transform its output automatically.",
+    "grammar": {
+      "origin": [
+        "<div class='mod-demo'><h2>Modifiers in Action</h2>#example##example##example#</div>"
+      ],
+      "example": [
+        "<p>[target:#animal#]<code>#target#</code> → <b>#target.capitalize#</b> <em>(capitalize)</em></p>",
+        "<p>[target:#animal#]<code>#target#</code> → <b>#target.s#</b> <em>(plural)</em></p>",
+        "<p>[target:#verb#]<code>#target#</code> → <b>#target.ed#</b> <em>(past tense)</em></p>",
+        "<p>[target:#adj#]<code>#target#</code> → <b>#target.capitalize#</b> <em>(capitalize)</em></p>"
+      ],
+      "animal": [
+        "fox",
+        "wolf",
+        "moth",
+        "raven",
+        "dragon"
+      ],
+      "verb": [
+        "wander",
+        "dance",
+        "sleep",
+        "run",
+        "listen"
+      ],
+      "adj": [
+        "ancient",
+        "mysterious",
+        "gentle",
+        "electric"
+      ],
+      "_cssStyles": ".mod-demo{font-family:sans-serif;padding:1rem;max-width:55ch} h2{font-size:1.1rem;margin-bottom:.8rem} p{line-height:2;margin:.2rem 0;border-bottom:1px solid #eee;padding:.2rem 0} code{background:#f0f0f0;padding:1px 6px;border-radius:4px;font-size:.9em} em{color:#888;font-size:.9em}"
+    }
+  },
+  {
+    "id": "tracery-push-pop",
+    "category": "Tracery",
+    "title": "Set Variables",
+    "description": "Use [name:#symbol#] inside a # expression to set a variable and reuse it consistently.",
+    "grammar": {
+      "origin": [
+        "#[hero:#name#][heroPet:#animal#]story#"
+      ],
+      "story": [
+        "<div class='tale'><h2>The Tale of #hero#</h2><p>#hero# had a pet #heroPet# named #heroPet.capitalize#-Too.</p><p>One day, #hero# and the #heroPet# ventured into the #place#.</p><p>Nobody believed #hero# when they returned — but the #heroPet# knew the truth.</p></div>"
+      ],
+      "name": [
+        "Ash",
+        "Ember",
+        "River",
+        "Sage",
+        "Quinn",
+        "Wren"
+      ],
+      "animal": [
+        "fox",
+        "raven",
+        "tortoise",
+        "moth",
+        "lynx"
+      ],
+      "place": [
+        "silver forest",
+        "sunken archive",
+        "glass canyon",
+        "fog vale"
+      ],
+      "_cssStyles": ".tale{font-family:Georgia,serif;padding:1.2rem;max-width:52ch;line-height:1.8} h2{font-size:1.3rem;margin-bottom:.6rem;color:#3a3a6a} p{margin:.5rem 0}"
+    }
+  },
+  {
+    "id": "tracery-nested",
+    "category": "Tracery",
+    "title": "Nested Symbols",
+    "description": "Symbols can reference other symbols to build complex, layered outputs from simple rules.",
+    "grammar": {
+      "origin": [
+        "<div class='news'><h2>🗞 #headline#</h2><p>#lead#</p><p>#follow#</p></div>"
+      ],
+      "headline": [
+        "Local #creature.capitalize# #verb.ed# in #place#",
+        "#place.capitalize# Shocked by #adj.capitalize# #creature.capitalize#",
+        "#adj.capitalize# #creature.capitalize# to Attend #event#"
+      ],
+      "lead": [
+        "Witnesses described the #creature# as #adv# #adj#.",
+        "Officials say the #creature# appeared on #day# without warning.",
+        "The #adj# #creature# was first spotted near the old #place#."
+      ],
+      "follow": [
+        "No comment has been issued by the local #who#.",
+        "#who.capitalize# is expected to hold a press conference on #day#.",
+        "Further updates are expected from the #who# by end of week."
+      ],
+      "creature": [
+        "moth",
+        "fox",
+        "tortoise",
+        "raven",
+        "newt"
+      ],
+      "adj": [
+        "glowing",
+        "enormous",
+        "ancient",
+        "confused",
+        "tiny"
+      ],
+      "adv": [
+        "surprisingly",
+        "visibly",
+        "undeniably",
+        "reportedly"
+      ],
+      "verb": [
+        "appear",
+        "wander",
+        "lecture",
+        "vote",
+        "escape"
+      ],
+      "place": [
+        "town hall",
+        "the market",
+        "city park",
+        "the old mill"
+      ],
+      "event": [
+        "the annual gala",
+        "a local festival",
+        "the summit",
+        "opening night"
+      ],
+      "who": [
+        "mayor",
+        "committee",
+        "council",
+        "spokesperson"
+      ],
+      "day": [
+        "Monday",
+        "Thursday",
+        "next week",
+        "this afternoon"
+      ],
+      "_cssStyles": ".news{font-family:Georgia,serif;padding:1.2rem;max-width:55ch;border-left:4px solid #3a3a6a;line-height:1.8} h2{font-size:1.2rem;margin-bottom:.6rem;color:#3a3a6a} p{margin:.5rem 0;color:#333}"
+    }
+  },
+  {
+    "id": "text-decoration",
+    "category": "Text Styles",
+    "title": "Text Decoration",
+    "description": "Bold, italic, underline, strikethrough and coloured text using HTML tags and inline CSS.",
+    "grammar": {
+      "origin": [
+        "<div class='story'><h2>#headline#</h2><p>#sentence#</p><p>#more#</p></div>"
+      ],
+      "headline": [
+        "Today's Story",
+        "Breaking News",
+        "A Short Tale"
+      ],
+      "sentence": [
+        "The <b>#adj#</b> explorer was <i>absolutely</i> <u>determined</u>.",
+        "She had a <span class='col1'>#adj#</span> idea that changed everything.",
+        "<b><i>Everyone agreed:</i></b> the plan was <s>terrible</s> brilliant."
+      ],
+      "more": [
+        "Her notes were <mark>#adj#</mark> and full of <u>underlines</u>.",
+        "The sign read: <span class='col2'>#adj# Zone — Proceed With Care</span>."
+      ],
+      "adj": [
+        "mysterious",
+        "ancient",
+        "glowing",
+        "tiny",
+        "electric"
+      ],
+      "_cssStyles": ".story{font-family:Georgia,serif;font-size:1rem;line-height:1.8;padding:1.2rem;max-width:52ch} h2{font-size:1.3rem;margin-bottom:.6rem} p{margin:.4rem 0} mark{background:rgb(255,241,118);padding:0 2px} .col1{color:crimson;font-weight:bold} .col2{color:royalblue;text-decoration:underline}"
+    }
+  },
+  {
+    "id": "text-alignment",
+    "category": "Text Styles",
+    "title": "Text Alignment",
+    "description": "Left, centre, and right text alignment using CSS text-align.",
+    "grammar": {
+      "origin": [
+        "<div class='page'>#block#<br>#block#<br>#block#</div>"
+      ],
+      "block": [
+        "<p style='text-align:left'><b>Left:</b> #phrase#</p>",
+        "<p style='text-align:center'><b>Centre:</b> #phrase#</p>",
+        "<p style='text-align:right'><b>Right:</b> #phrase#</p>",
+        "<p class='fancy'>#phrase#</p>"
+      ],
+      "phrase": [
+        "The stars were bright.",
+        "A fox ran past.",
+        "Something strange happened.",
+        "Nobody noticed."
+      ],
+      "_cssStyles": ".page{font-family:sans-serif;font-size:1rem;line-height:2;padding:1rem;max-width:50ch} .fancy{text-align:center;font-style:italic;color:slateblue}"
+    }
+  },
+  {
+    "id": "headers-links",
+    "category": "Structure",
+    "title": "Headers & Links",
+    "description": "HTML heading levels h1-h3, paragraphs, and anchor links.",
+    "grammar": {
+      "origin": [
+        "<article class='doc'><h1>#title#</h1><h2>#subtitle#</h2><p>#body#</p><p>Read more at <a href='https://example.com'>example.com</a></p></article>"
+      ],
+      "title": [
+        "The Great Discovery",
+        "An Unexpected Journey",
+        "Secrets of the Deep"
+      ],
+      "subtitle": [
+        "Chapter One: The Beginning",
+        "Part One: Setting Off",
+        "Introduction: What Lies Ahead"
+      ],
+      "body": [
+        "It all started on a <b>#adj#</b> afternoon when nobody expected anything unusual.",
+        "The explorer opened the door and found something <i>#adj#</i> inside.",
+        "Years of waiting finally paid off — the answer was <u>#adj#</u> simple."
+      ],
+      "adj": [
+        "quiet",
+        "strange",
+        "golden",
+        "electric",
+        "forgotten"
+      ],
+      "_cssStyles": ".doc{font-family:Georgia,serif;padding:1.2rem;max-width:55ch;line-height:1.7} h1{font-size:1.6rem;margin-bottom:.2rem} h2{font-size:1.1rem;color:dimgray;font-weight:normal;margin-bottom:.8rem} a{color:royalblue} p{margin:.5rem 0}"
+    }
+  },
+  {
+    "id": "images",
+    "category": "Images",
+    "title": "Images",
+    "description": "Display images with custom width, height, border-radius and alignment.",
+    "grammar": {
+      "origin": [
+        "<div class='gallery'><h2>#caption#</h2>#img#<p>#desc#</p></div>"
+      ],
+      "img": [
+        "<img src='https://picsum.photos/seed/#seed#/400/250' width='400' height='250' alt='photo' class='photo'>",
+        "<img src='https://picsum.photos/seed/#seed#/200/200' width='200' height='200' alt='photo' class='circle'>",
+        "<img src='https://picsum.photos/seed/#seed#/500/200' width='500' height='200' alt='photo' class='banner'>"
+      ],
+      "seed": [
+        "forest",
+        "city",
+        "ocean",
+        "mountain",
+        "sky",
+        "river"
+      ],
+      "caption": [
+        "A Quiet Moment",
+        "Into the Wild",
+        "Urban Life",
+        "The Horizon"
+      ],
+      "desc": [
+        "This photo captures something unexpected.",
+        "Every image tells a story.",
+        "Look closer — there is always more to see."
+      ],
+      "_cssStyles": ".gallery{font-family:sans-serif;padding:1rem;text-align:center} h2{font-size:1.2rem;margin-bottom:.6rem} .photo{border-radius:8px;display:block;margin:0 auto} .circle{border-radius:50%;display:block;margin:0 auto} .banner{border-radius:4px;display:block;margin:0 auto;width:100%;height:auto}"
+    }
+  },
+  {
+    "id": "colors-backgrounds",
+    "category": "Colors",
+    "title": "Colors & Backgrounds",
+    "description": "Change the page background, text colours and highlights using CSS class names.",
+    "grammar": {
+      "origin": [
+        "<div class='page bg-#theme#'><h1>#title#</h1><p>#body#</p></div>"
+      ],
+      "theme": [
+        "night",
+        "day",
+        "sunset"
+      ],
+      "title": [
+        "A Colourful World",
+        "Design With Style",
+        "Make It Pop"
+      ],
+      "body": [
+        "<span class='accent'>#phrase#</span> — colour makes all the difference.",
+        "Try <b class='accent'>bold colour</b> to emphasise your ideas.",
+        "A <span class='highlight'>#phrase#</span> stands out immediately."
+      ],
+      "phrase": [
+        "this word",
+        "a key idea",
+        "the main point",
+        "something important"
+      ],
+      "_cssStyles": ".page{font-family:sans-serif;padding:1.5rem;max-width:52ch;line-height:1.8;border-radius:8px} .bg-night{background:rgb(26,26,46);color:rgb(224,224,224)} .bg-day{background:rgb(255,253,231);color:rgb(51,51,51)} .bg-sunset{background:rgb(255,112,67);color:rgb(255,243,224)} h1{margin-bottom:.6rem} .accent{color:gold;font-weight:bold} .highlight{background:rgba(255,255,100,0.4);padding:0 4px}"
+    }
+  },
+  {
+    "id": "layout-columns",
+    "category": "Layout",
+    "title": "Float Layout",
+    "description": "Float elements left and right to create simple two-column layouts.",
+    "grammar": {
+      "origin": [
+        "<div class='page'><h2>#title#</h2><div class='row'><div class='left-col'>#left#</div><div class='right-col'>#right#</div><div class='clear'></div></div></div>"
+      ],
+      "title": [
+        "Two Column Layout",
+        "Side by Side",
+        "Float Example"
+      ],
+      "left": [
+        "<p><b>Left:</b> #phrase#</p><p>#phrase2#</p>"
+      ],
+      "right": [
+        "<p style='text-align:right'><b>Right:</b> #phrase#</p><p style='text-align:right;font-style:italic'>#phrase2#</p>"
+      ],
+      "phrase": [
+        "The quick fox jumped over the fence.",
+        "Always check both sides of the argument.",
+        "Details matter more than you think."
+      ],
+      "phrase2": [
+        "Consider every option.",
+        "Think it through carefully.",
+        "Look at the big picture."
+      ],
+      "_cssStyles": ".page{font-family:sans-serif;padding:1rem;max-width:60ch} h2{margin-bottom:.8rem} .row{overflow:hidden} .left-col{float:left;width:48%;line-height:1.7} .right-col{float:right;width:48%;line-height:1.7} .clear{clear:both}"
+    }
+  },
+  {
+    "id": "table",
+    "category": "Layout",
+    "title": "Tables",
+    "description": "Basic HTML tables with headers, rows and CSS styling.",
+    "grammar": {
+      "origin": [
+        "<div class='wrap'><h2>#title#</h2><table class='tbl'><thead><tr><th>Name</th><th>Type</th><th>Score</th></tr></thead><tbody>#row##row##row#</tbody></table></div>"
+      ],
+      "title": [
+        "High Scores",
+        "Character Stats",
+        "Creature Catalogue",
+        "Mission Log"
+      ],
+      "row": [
+        "<tr><td>#name#</td><td>#type#</td><td>#score#</td></tr>"
+      ],
+      "name": [
+        "Ash",
+        "Blaze",
+        "Cedar",
+        "Dusk",
+        "Ember",
+        "Frost"
+      ],
+      "type": [
+        "Explorer",
+        "Builder",
+        "Scout",
+        "Keeper",
+        "Watcher"
+      ],
+      "score": [
+        "92",
+        "78",
+        "85",
+        "61",
+        "99",
+        "73"
+      ],
+      "_cssStyles": ".wrap{font-family:sans-serif;padding:1rem} h2{margin-bottom:.6rem} .tbl{border-collapse:collapse;width:100%} .tbl th{background:rgb(58,58,106);color:white;padding:8px 12px;text-align:left} .tbl td{padding:8px 12px;border-bottom:1px solid rgb(221,221,221)} .tbl tr:nth-child(even) td{background:rgb(245,245,245)}"
+    }
+  },
+  {
+    "id": "scrollto-nav",
+    "category": "Interactive",
+    "title": "Scrolling Navigation",
+    "description": "Use scrollto: followed by a CSS selector to create jump-links within the generated document. Great for long stories or encyclopedias. Notice the scroll-margin-top CSS so titles aren't trapped under the sticky nav!",
+    "grammar": {
+      "origin": [
+        "<main><nav><b>Contents:</b> <a href='scrollto:%23chap1'>Chap 1</a> | <a href='scrollto:%23chap2'>Chap 2</a> | <a href='scrollto:.footer'>Footer</a></nav> <section id='chap1'><h2>Chapter 1</h2><p>This is a long section. #content#</p></section> <section id='chap2'><h2>Chapter 2</h2><p>This is the second section. #content#</p></section> <footer class='footer'>The End <a href='scrollto:main'>↑ Top</a></footer></main>"
+      ],
+      "content": [
+        "Far far away, behind the word mountains, far from the countries Vokalia and Consonantia. ",
+        "Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. ",
+        "A small river named Duden flows by their place and supplies it with the necessary regelialia. "
+      ],
+      "_cssStyles": "main{font-family:sans-serif;max-width:40ch;padding:1rem;line-height:1.6} nav{position:sticky;top:0;background:#eef2ff;padding:1rem;border-radius:6px;margin-bottom:2rem;display:flex;gap:.5rem} section{min-height:80vh;scroll-margin-top:5rem} h2{color:slateblue;border-bottom:2px solid} footer{margin-top:4rem;padding:2rem;background:#334;color:#fff;text-align:center} a{color:royalblue;text-decoration:none;font-weight:bold} a:hover{text-decoration:underline}"
+    }
+  },
+  {
+    "id": "day-night-variables",
+    "category": "Coherent Themes",
+    "title": "Day & Night (Variables)",
+    "description": "Use [var:#symbol#] to lock a time-of-day theme so creatures, light, and mood are always consistent within each generated story.",
+    "grammar": {
+      "origin": [
+        "#[time:day][skyWord:golden][animalPool:dayAnimal][ambiance:warm and still]scene#",
+        "#[time:night][skyWord:silver][animalPool:nightAnimal][ambiance:cool and hushed]scene#"
+      ],
+      "scene": "<div class='tale'><h2>A #time# in the #place#</h2><p>The #skyWord# light lay across the #place#. The air was #ambiance#.</p><p>A <b>#animalPool#</b> moved through the undergrowth. #moment#</p><p class='close'>#close#</p></div>",
+      "dayAnimal": [
+        "fox",
+        "deer",
+        "hawk",
+        "bumblebee",
+        "robin"
+      ],
+      "nightAnimal": [
+        "owl",
+        "moth",
+        "bat",
+        "firefly",
+        "hedgehog"
+      ],
+      "place": [
+        "silver forest",
+        "old meadow",
+        "valley ridge",
+        "riverside path"
+      ],
+      "moment": [
+        "For a long moment, nothing else moved.",
+        "It paused, then continued on its way.",
+        "The #place# felt like it was holding its breath."
+      ],
+      "close": [
+        "By the time I looked again, it was gone.",
+        "The #time# settled around it like a cloak.",
+        "That is how I remember it: the #skyWord# light, the silence, and the #animalPool#."
+      ],
+      "_cssStyles": ".tale{font-family:Georgia,serif;padding:1.4rem;max-width:54ch;line-height:1.85} h2{font-size:1.25rem;color:slateblue;margin-bottom:.5rem} p{margin:.5rem 0} .close{font-style:italic;color:dimgray;margin-top:.8rem}"
+    }
+  },
+  {
+    "id": "day-night-structural",
+    "category": "Coherent Themes",
+    "title": "Day & Night (Structure)",
+    "description": "A second approach: separate top-level symbols (dayStory, nightStory) each with their own themed word pools — no variables needed.",
+    "grammar": {
+      "origin": [
+        "#dayStory#",
+        "#nightStory#"
+      ],
+      "dayStory": "<div class='card day'><h2>☀ A #dayAdj# #dayTime#</h2><p>The #dayWeather# sky stretched wide. A <b>#dayAnimal#</b> crossed the #dayPlace#.</p><p>#dayMoment#</p></div>",
+      "nightStory": "<div class='card night'><h2>🌙 A #nightAdj# #nightTime#</h2><p>The #nightWeather# sky was deep and wide. A <b>#nightAnimal#</b> moved through the #nightPlace#.</p><p>#nightMoment#</p></div>",
+      "dayAdj": [
+        "bright",
+        "warm",
+        "clear",
+        "breezy",
+        "golden"
+      ],
+      "dayTime": [
+        "morning",
+        "afternoon",
+        "noon",
+        "sunrise"
+      ],
+      "dayWeather": [
+        "cloudless blue",
+        "pale hazy",
+        "brilliant white"
+      ],
+      "dayAnimal": [
+        "fox",
+        "deer",
+        "robin",
+        "hawk",
+        "bumblebee"
+      ],
+      "dayPlace": [
+        "open field",
+        "sun-warmed hillside",
+        "meadow path",
+        "riverbank"
+      ],
+      "dayMoment": [
+        "The warmth made everything slow and easy.",
+        "A distant lark sang once, then was quiet.",
+        "Dust drifted in the sunlit air."
+      ],
+      "nightAdj": [
+        "still",
+        "cool",
+        "pale",
+        "misty",
+        "quiet"
+      ],
+      "nightTime": [
+        "midnight",
+        "evening",
+        "late hour",
+        "small hours"
+      ],
+      "nightWeather": [
+        "star-scattered",
+        "overcast",
+        "moonlit"
+      ],
+      "nightAnimal": [
+        "owl",
+        "moth",
+        "bat",
+        "firefly",
+        "hedgehog"
+      ],
+      "nightPlace": [
+        "dark woodland",
+        "moonlit clearing",
+        "quiet lane",
+        "fog-filled valley"
+      ],
+      "nightMoment": [
+        "Somewhere an owl called, once.",
+        "The cold settled in gently.",
+        "Nothing moved for a long while."
+      ],
+      "_cssStyles": ".card{font-family:Georgia,serif;padding:1.4rem;max-width:54ch;line-height:1.85;border-radius:8px} .day{background:rgb(255,251,230);color:rgb(60,50,20)} .day h2{color:rgb(180,100,0)} .night{background:rgb(18,18,35);color:rgb(200,200,220)} .night h2{color:rgb(150,160,255)} p{margin:.5rem 0}"
+    }
+  },
+  {
+    "id": "seasons-structural",
+    "category": "Coherent Themes",
+    "title": "Four Seasons",
+    "description": "Each season symbol draws only from season-appropriate imagery — a structural approach to thematic coherence without any variables.",
+    "grammar": {
+      "origin": [
+        "#spring#",
+        "#summer#",
+        "#autumn#",
+        "#winter#"
+      ],
+      "spring": "<div class='s spring'><h2>🌸 Spring</h2><p>#springOpening# A <b>#springCreature#</b> appeared among the #springPlant#.</p><p>#springClose#</p></div>",
+      "summer": "<div class='s summer'><h2>☀ Summer</h2><p>#summerOpening# A <b>#summerCreature#</b> rested in the shade of the #summerPlant#.</p><p>#summerClose#</p></div>",
+      "autumn": "<div class='s autumn'><h2>🍂 Autumn</h2><p>#autumnOpening# A <b>#autumnCreature#</b> moved beneath the #autumnPlant#.</p><p>#autumnClose#</p></div>",
+      "winter": "<div class='s winter'><h2>❄ Winter</h2><p>#winterOpening# A <b>#winterCreature#</b> crossed the #winterPlace#.</p><p>#winterClose#</p></div>",
+      "springOpening": [
+        "The air smelled of rain and new growth.",
+        "Everything was beginning again."
+      ],
+      "springCreature": [
+        "robin",
+        "deer",
+        "butterfly",
+        "duckling"
+      ],
+      "springPlant": [
+        "bluebells",
+        "fresh grass",
+        "blossoming hedgerows"
+      ],
+      "springClose": [
+        "The world felt new and full of promise.",
+        "Somewhere, something small was waking up."
+      ],
+      "summerOpening": [
+        "The heat pressed down like a warm hand.",
+        "The day stretched out endlessly."
+      ],
+      "summerCreature": [
+        "fox",
+        "grasshopper",
+        "hawk",
+        "bumblebee"
+      ],
+      "summerPlant": [
+        "tall oak",
+        "wild roses",
+        "bramble"
+      ],
+      "summerClose": [
+        "The afternoon refused to end.",
+        "Even the breeze was warm."
+      ],
+      "autumnOpening": [
+        "The smell of woodsmoke drifted through the air.",
+        "Leaves turned and dropped one by one."
+      ],
+      "autumnCreature": [
+        "squirrel",
+        "raven",
+        "hedgehog",
+        "red deer"
+      ],
+      "autumnPlant": [
+        "copper beech",
+        "bare oak",
+        "rustling hawthorn"
+      ],
+      "autumnClose": [
+        "Something was ending, quietly and without fuss.",
+        "The light came low and golden."
+      ],
+      "winterOpening": [
+        "The ground was hard underfoot.",
+        "Cold had settled in overnight."
+      ],
+      "winterCreature": [
+        "fox",
+        "heron",
+        "fieldmouse",
+        "barn owl"
+      ],
+      "winterPlace": [
+        "frozen field",
+        "grey hillside",
+        "snow-covered lane"
+      ],
+      "winterClose": [
+        "Silence was everywhere.",
+        "The cold made everything sharp and clear."
+      ],
+      "_cssStyles": ".s{font-family:Georgia,serif;padding:1.4rem;max-width:54ch;line-height:1.85;border-radius:8px;margin:.5rem} h2{font-size:1.2rem;margin-bottom:.5rem} p{margin:.4rem 0} .spring{background:rgb(240,255,245);color:rgb(30,60,40)} .spring h2{color:rgb(60,140,80)} .summer{background:rgb(255,251,220);color:rgb(60,50,20)} .summer h2{color:rgb(190,120,0)} .autumn{background:rgb(255,245,235);color:rgb(60,35,10)} .autumn h2{color:rgb(180,80,20)} .winter{background:rgb(235,240,255);color:rgb(20,30,55)} .winter h2{color:rgb(80,100,180)}"
+    }
+  },
+  {
+    "id": "setorigin-adventure",
+    "category": "Interactive",
+    "title": "Choose Your Path",
+    "description": "Use setorigin: links to navigate between pages — click the links in the preview to move between scenes.",
+    "grammar": {
+      "origin": [
+        "<div class='page'><h2>🏚 The Old House</h2><p>You stand at the gate of an abandoned house. Rain falls softly. The front door is ajar. A path winds around the side.</p><nav><a href='setorigin:frontDoor'>Go through the front door →</a><a href='setorigin:garden'>Take the side path →</a></nav></div>"
+      ],
+      "frontDoor": [
+        "<div class='page'><h2>🚪 The Hallway</h2><p>Inside it is dark and quiet. A staircase leads up. A door leads toward the kitchen.</p><nav><a href='setorigin:upstairs'>Go upstairs →</a><a href='setorigin:kitchen'>Go to the kitchen →</a><a href='setorigin:origin'>← Back outside</a></nav></div>"
+      ],
+      "garden": [
+        "<div class='page'><h2>🌿 The Garden</h2><p>Overgrown and still. An old well sits at the centre. Something glints at the bottom, just out of reach.</p><nav><a href='setorigin:origin'>← Return to the gate</a></nav></div>"
+      ],
+      "upstairs": [
+        "<div class='page'><h2>🕯 The Upper Landing</h2><p>A long corridor. Doors on either side, all closed. At the far end, a light flickers under one of them.</p><nav><a href='setorigin:frontDoor'>← Back downstairs</a></nav></div>"
+      ],
+      "kitchen": [
+        "<div class='page'><h2>🍲 The Kitchen</h2><p>Cold and still. A pot on the stove. Through the cracked window you can see the overgrown garden.</p><nav><a href='setorigin:frontDoor'>← Back to the hallway</a><a href='setorigin:garden'>Step into the garden →</a></nav></div>"
+      ],
+      "_cssStyles": ".page{font-family:Georgia,serif;max-width:50ch;padding:1.4rem;line-height:1.8} h2{font-size:1.2rem;margin-bottom:.6rem;color:slateblue} p{margin:.4rem 0;color:rgb(40,40,50)} nav{margin-top:1.2rem;display:flex;flex-direction:column;gap:.5rem} nav a{color:royalblue;text-decoration:none;font-size:.95rem;padding:.3rem 0;border-bottom:1px solid rgb(220,225,240)} nav a:hover{color:rgb(100,50,200)}"
+    }
+  },
+  {
+    "id": "full-page",
+    "category": "Full Page",
+    "title": "Mini Web Page",
+    "description": "A complete styled page combining header, image, body text and footer.",
+    "grammar": {
+      "origin": [
+        "<div class='site'><header class='site-header'><h1>#title#</h1><p class='tagline'>#tagline#</p></header><main class='content'><img src='https://picsum.photos/seed/#seed#/600/240' width='600' height='240' alt='hero' class='hero-img'><p>#body#</p><p>#body#</p></main><footer class='site-footer'><p>#footer#</p></footer></div>"
+      ],
+      "title": [
+        "The Wanderer's Log",
+        "Deep Sea Notes",
+        "Sky Journal",
+        "Forest Archive"
+      ],
+      "tagline": [
+        "Stories from beyond the map.",
+        "Where curiosity leads.",
+        "Notes from the edge of things."
+      ],
+      "seed": [
+        "ocean",
+        "forest",
+        "desert",
+        "mountain",
+        "sky"
+      ],
+      "body": [
+        "It was the kind of day that makes you want to stop and notice everything around you.",
+        "Nobody had been here before — at least, that's what everyone assumed.",
+        "The light shifted slowly, turning everything a shade of gold and possibility."
+      ],
+      "footer": [
+        "Written with Tracery Studio.",
+        "An experiment in generative writing.",
+        "Made by a student, for everyone."
+      ],
+      "_cssStyles": ".site{font-family:Georgia,serif;max-width:640px;margin:0 auto;color:rgb(34,34,34)} .site-header{background:rgb(44,62,80);color:white;padding:1.5rem;text-align:center} .site-header h1{font-size:1.8rem;margin:0 0 .3rem} .tagline{font-style:italic;color:rgb(170,170,170);margin:0} .content{padding:1.2rem;line-height:1.8} .hero-img{width:100%;height:auto;display:block;margin-bottom:1rem;border-radius:6px} .site-footer{background:rgb(236,240,241);padding:.8rem 1.2rem;font-size:.85rem;color:rgb(119,119,119);text-align:center} p{margin:.5rem 0}"
+    }
+  },
+  {
+    "id": "student-example-1",
+    "category": "Student Examples",
+    "title": "Student Example 1",
+    "description": "A student's work",
+    "grammar": {
+      "origin": [
+        "<h1 style='color:rgb(244,194,194)'>🩰#beginning# a generative dance text page!🩰 </h1></p> Designed to inspire your #blahblah#! </p>With each reload, uncover a new 32 counts of ballet steps that resonates with you. All generated exercises have new ballet steps for you to try! Feel free to select your preferred music and choose your timing. </p>#lilmessage#!<h3></p><h5 style='color:rgb(244,194,194)'> Heres your personalised #dance# <h5>Start in #danceposition#</h5><h6>#dancelist#</p>Finish in #danceposition# and bow or curtsey!!! </p> Bravo!!! Keep refreshing the page to learn more dances created especially for you!!</p>#gif#<a href='https://www.youtube.com/watch?v=i-2GTGqa69s' target='_blank'>For more help visit this link showing you an example of a dancer demonstrating a genrated exercise and the ballet steps included in this webpage :)</</a>"
+      ],
+      "dancelist": [
+        "<li>🩰 1 2 🩰 #dancemove# <br><li>🩰 3 4 🩰 #dancemove# <br><li>🩰 5 6 🩰 #dancemove# <br><li> 🩰 7 8 🩰 #dancemove# <br> <li>🩰 1 2 🩰 #dancemove# <br><li>🩰 3 4 🩰 #dancemove# <br><li>🩰 5 6 🩰 #dancemove# <br><li> 🩰 7 8 🩰 #dancemove# <br> <li>🩰 1 2 🩰 #dancemove# <br><li>🩰 3 4 🩰 #dancemove# <br><li>🩰 5 6 🩰 #dancemove# <br><li> 🩰 7 8 🩰 #dancemove# <br> <li>🩰 1 2 🩰 #dancemove# <br><li>🩰 3 4 🩰 #dancemove# <br><li>🩰 5 6 🩰 #dancemove# <br><li> 🩰 7 8 🩰 #dancemove# <br>"
+      ],
+      "beginning": [
+        "This is ",
+        "This right here is ",
+        "I am ",
+        "This lil webpage is"
+      ],
+      "dance": [
+        "Bar exercise",
+        "Centre exercise",
+        "Adage exercise",
+        "Allegro exercise",
+        "Dance"
+      ],
+      "danceposition": [
+        "First Position",
+        "Second Position",
+        "Third Position",
+        "Fourth Position",
+        "Fifth Position"
+      ],
+      "dancemove": [
+        "Plie",
+        "Tendu",
+        "Degage",
+        "Rond de Jambe",
+        "Developpe",
+        "Grand Battement",
+        "Arabesque",
+        "Attitude",
+        "Penché",
+        "Sauté",
+        "Changement",
+        "Entrechat",
+        "Grand Jete",
+        "Sissone",
+        "Cabriole",
+        "Assemble",
+        "Coupé jeté en tournant",
+        "Pirouette en dehors",
+        "Pirouette en dedans",
+        "Attitude turn",
+        "Fouetté turn",
+        "Chainé turn",
+        "step",
+        "Port de bras",
+        "Chasse",
+        "Pas de basque",
+        "Pas de bourree",
+        "Pique",
+        "Fondu",
+        "Petit battements",
+        "Glissade",
+        "Demi contretemps",
+        "Poses turn",
+        "Balance"
+      ],
+      "blahblah": [
+        "own unique dance creation",
+        "learn some key ballet moves",
+        "practice some key ballet moves",
+        "own unique dance creation or just for some fun",
+        "learn some key ballet moves or just for some fun",
+        "practice some key ballet moves or just for some fun"
+      ],
+      "lilmessage": [
+        "I hope you enjoy this generative text webpage, Break a leg and have fun!",
+        "Good luck, break a leg, and have a blast exploring this generative text webpage!",
+        "Best of luck as you dive into this generative text webpage – break a leg and enjoy!",
+        "Have fun with this generative text webpage! Best of luck and break a leg!",
+        "Wishing you the best as you explore this generative text webpage – break a leg and have a fantastic time!",
+        "Enjoy this generative text webpage to the fullest – best of luck and break a leg!"
+      ],
+      "gif": [
+        "<img src=\"https://i.gifer.com/38xU.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/2B9j.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/UMfk.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\" https://i.gifer.com/kem.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\" https://i.gifer.com/WERp.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/Si0.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/6XjV.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/GVx1.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/1rx9.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">",
+        "<img src=\"https://i.gifer.com/RrKE.gif\"><p><a href=\"https://https://unsplash.com/photos/QzpgqElvSiA/\">"
+      ]
+    }
+  },
+  {
+    "id": "student-example-2",
+    "category": "Student Examples",
+    "title": "Student Example 2",
+    "description": "A student's work",
+    "grammar": {
+      "origin": [
+        "<div>\n    <p class=\"text-center text-blue text-normal\">#journalName# Vol. #volume# No. #issue# #year#</p>\n    <hr></div>\n    <div>\n    <img class=\"margin-right\" src=\"https://fakeimg.pl/150x150/?text=#thumbnail#&font=lobster\">\n    <img class=\"margin-horizontal\" src=\"https://fakeimg.pl/567x150/?text=#thumbnail#&font=lobster\">\n    <img class=\"margin-left\" src=\"https://fakeimg.pl/150x150/?text=#thumbnail#&font=lobster\">\n    </div>\n    <hr class=\"margin-top\">\n    <h1>#subject# #subjectExt# #effect# #objectAdj# #object#</h1>\n    <h2 class=\"text-normal\">#authorFirstName# #authorLastName#, #secondAuthorFirstName# #secondAuthorLastName#</h2>\n    <h3 class=\"text-normal\">#institution# of #major#, #city#</h3>\n    <hr>\n    <h2 class=\"text-normal\">Abstract</h2>\n    <hr>\n    <p>\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    </p>\n    <hr>\n    <div class=\"grid\">\n  <div class=\"grid-item 1/2\">\n    <h3>Introduction</h3>\n    <p>\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    </p>\n  </div>\n  <div class=\"grid-item 1/2\">\n    <p>\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    #text# #text# #text# #text# #text# #text# #text# #text# #text# #text#\n    </p>\n  </div>\n</div>\n    "
+      ],
+      "journalName": [
+        "Journal of Treachery and Trickery",
+        "The Brokenhearted People Club Journal",
+        "Journal of Happiness and Joy",
+        "Outrageous Experiments",
+        "Crazy Findings",
+        "Shocking Journal"
+      ],
+      "year": [
+        "(2001)",
+        "(2002)",
+        "(2023)",
+        "(2020)",
+        "(1997)",
+        "(400 A.D.)",
+        "(28 B.C.)",
+        "(1968)"
+      ],
+      "thumbnail": [
+        "What?",
+        "Thumbnail",
+        "LOL",
+        "WTF?!",
+        "😵‍💫😵‍💫😵‍💫",
+        "🤡🤡🤡",
+        "Oh why?",
+        ":'DDD",
+        "Hahaha",
+        "Hot dogs!",
+        "Why are u here?",
+        "Candy bar",
+        "Gimme food",
+        "Super hungry",
+        "I need sleep",
+        "Tracery live rocks",
+        "I love COMMS 103",
+        "Javascript 💖"
+      ],
+      "volume": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "10",
+        "15",
+        "24",
+        "33"
+      ],
+      "issue": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "authorFirstName": [
+        "James",
+        "Robert",
+        "John",
+        "Michael",
+        "David",
+        "William",
+        "Richard",
+        "Dimas",
+        "Thomas"
+      ],
+      "authorLastName": [
+        "Jones",
+        "Wilson",
+        "Taylor",
+        "Campbell",
+        "Moore",
+        "Allen",
+        "Wright",
+        "Rama",
+        "Miller"
+      ],
+      "secondAuthorFirstName": [
+        "James",
+        "Robert",
+        "John",
+        "Michael",
+        "David",
+        "William",
+        "Richard",
+        "Dimas",
+        "Thomas",
+        ""
+      ],
+      "secondAuthorLastName": [
+        "Jones",
+        "Wilson",
+        "Taylor",
+        "Campbell",
+        "Moore",
+        "Allen",
+        "Wright",
+        "Rama",
+        "Miller",
+        ""
+      ],
+      "subject": [
+        "Chemical",
+        "Mathematical",
+        "Astronomical",
+        "Mythical",
+        "Computational",
+        "Musical",
+        "Biblical",
+        "Dimensional",
+        "Literal",
+        "Artificial",
+        "Comparative",
+        "Persuasive"
+      ],
+      "subjectExt": [
+        "Equation",
+        "Understanding",
+        "Stimulation",
+        "Simulation",
+        "Motif",
+        "Compilation",
+        "Fusion",
+        "Comprehension",
+        "Mixing",
+        "Intelligence"
+      ],
+      "effect": [
+        "on",
+        "for",
+        "Effect on",
+        "Implementation on",
+        "Application on",
+        "Experiment on"
+      ],
+      "objectAdj": [
+        "Awesome",
+        "Unstable",
+        "Ill-Willed",
+        "Delusional",
+        "Motivated",
+        "Crazy",
+        "Indigenous",
+        "Short-Sighted",
+        "Hunchback"
+      ],
+      "object": [
+        "People",
+        "Lizards",
+        "Fungus",
+        "Musicians",
+        "Astronauts",
+        "Companies",
+        "Clowns",
+        "Hot Dogs"
+      ],
+      "institution": [
+        "Institute",
+        "University",
+        "School",
+        "Laboratory",
+        "Center",
+        "Department"
+      ],
+      "major": [
+        "Music",
+        "Engineering",
+        "Science",
+        "Communication",
+        "Astronomy",
+        "Arts"
+      ],
+      "city": [
+        "Auckland",
+        "Hamilton",
+        "Wellington",
+        "Christchurch",
+        "Chicago",
+        "Jakarta",
+        "Coromandel",
+        "Oamaru"
+      ],
+      "text": [
+        "mud",
+        "roof",
+        "what",
+        "and",
+        "alpha",
+        "be",
+        "random",
+        "security",
+        "get",
+        "input,",
+        "string",
+        "numeric",
+        "pattern",
+        "creates",
+        "codes",
+        "have",
+        "helpful",
+        "a",
+        "on",
+        "and",
+        "no",
+        "of",
+        "numbers",
+        "letters",
+        "that",
+        "series",
+        "input",
+        "your",
+        "for",
+        "based",
+        "unique",
+        "can",
+        "are",
+        "computing,",
+        "also",
+        "generates",
+        "output",
+        "lower",
+        "16",
+        "character",
+        "this",
+        "sequence",
+        "upper",
+        "case",
+        "called",
+        "utility",
+        "want",
+        "tool",
+        "set",
+        "to",
+        ".",
+        ".",
+        "important",
+        "if",
+        "mechanical",
+        "lacks",
+        "create",
+        "generating",
+        "especially",
+        "replace",
+        "time",
+        "device",
+        "randomized",
+        "consuming",
+        "computational",
+        "they",
+        "flips,",
+        "traditional",
+        "in",
+        "devices",
+        "playing",
+        "cards",
+        "numbers",
+        "coin",
+        "search",
+        "concerns",
+        "algorithms",
+        "another",
+        "track",
+        "hash",
+        "randomness",
+        "string",
+        "statistical",
+        "type",
+        "selecting",
+        "or",
+        "music",
+        "task",
+        "programming",
+        "forms",
+        "an",
+        "generation",
+        "common",
+        "computer",
+        "survey",
+        "is",
+        "applications",
+        "theory,",
+        "involving",
+        "method",
+        "randomization",
+        "times,",
+        "generated",
+        "was",
+        "such",
+        "through",
+        "dice,",
+        "application",
+        "machines",
+        "odds",
+        "several",
+        "lottery",
+        "games",
+        "one",
+        "current",
+        "use",
+        "number",
+        "slot",
+        "possible",
+        "caused",
+        "generators",
+        "more",
+        "replace",
+        "computational",
+        "time",
+        "device",
+        "this",
+        "resource",
+        "when",
+        "as",
+        "track",
+        "large",
+        "flips,",
+        "method",
+        "coin",
+        "and",
+        "cards",
+        "for",
+        "playing",
+        "method",
+        "no",
+        "on",
+        "have",
+        "through",
+        "be",
+        "pattern",
+        "of",
+        "or",
+        "randomness",
+        "time,",
+        "mechanical",
+        "replace",
+        "device",
+        "application",
+        "achieve",
+        "can",
+        "also",
+        "more",
+        "especially",
+        "randomized",
+        "number",
+        "devices",
+        "and",
+        "numbers",
+        "of",
+        "dice,",
+        "coins,",
+        "search"
+      ],
+      "_cssStyles": ".h1,.h2,.h3,.h4,.h5,.h6,body,h1,h2,h3,h4,h5,h6 {\n  font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif\n}\n\n.text-normal {\n  font-weight:400\n}\n\n.h1,.h2,.h3,.h4,.h5,.h6,h1,h2,h3,h4,h5,h6 {\n  margin-bottom:1.5rem;\n  font-weight:700\n}\n\n.h2,h2 {\n  font-size:2rem\n}\n\nUser Agent Style Sheeth2 {\n  display:block;\n  font-size:1.5em;\n  margin-block-start:0.83em;\n  margin-block-end:0.83em;\n  margin-inline-start:0;\n  font-weight:700\n}\n\n.margin-top {\n  margin-top:1.5rem!important\n}\n\nhr {\n  height:1px;\n  color:#ddd;\n  background-color:#ddd;\n  border:0\n}\n\ncode,em,hr,small,strong {\n  line-height:1\n}\n\nblockquote,caption,dd,dl,fieldset,form,h1,h2,h3,h4,h5,h6,hr,legend,ol,p,pre,table,td,th,ul {\n  padding:0;\n  margin:0\n}\n\nbutton,hr,input {\n  overflow:visible\n}\n\nhr,img {\n  box-sizing:content-box\n}\n\nUser Agent Style Sheethr,bdi,output {\n  unicode-bidi:isolate\n}\n\nUser Agent Style Sheethr {\n  display:block;\n  overflow-x:hidden;\n  overflow-y:hidden;\n  color:gray;\n  margin-block-start:0.5em;\n  margin-inline-start:auto;\n  border-top-style:inset;\n  border-top-width:1px\n}\n\n[class~=\"1/2\"],[class~=\"2/4\"],[class~=\"3/6\"],[class~=\"4/8\"],[class~=\"5/10\"],[class~=\"6/12\"] {\n  flex-basis:50%;\n  width:50%;\n  max-width:50%\n}\n\n.grid-item {\n  padding-right:.75rem;\n  padding-left:.75rem\n}\n\n.grid {\n  display:flex;\n  flex:0 1 auto;\n  flex-direction:row;\n  flex-wrap:wrap;\n  margin-right:-.75rem;\n  margin-left:-.75rem\n}\n\nUser Agent Style Sheetaddress,article,aside,details,div,figcaption,figure,footer,header,hgroup,main,menu,nav,search,section,summary {\n  display:block\n}\n\n*,::after,::before {\n  box-sizing:inherit\n}\n\nbody {\n  font-weight:400;\n  font-size:1rem;\n  line-height:1.5\n}\n\nbody,small {\n  color:#111\n}\n\nhtml {\n  font-family:sans-serif;\n  -webkit-text-size-adjust:100%\n}"
+    }
+  },
+  {
+    "id": "student-example-3",
+    "category": "Student Examples",
+    "title": "Student Example 3",
+    "description": "A student's work",
+    "grammar": {
+      "origin": [
+        "#logo#<br>#searchbar##results#<br><br>#buttons#"
+      ],
+      "logo": [
+        "<p style='text-align:center; font-size:120px;'><span style='color:#logocolor#'>G</span><span style='color:#logocolor#'>o</span><span style='color:#logocolor#'>o</span><span style='color:#logocolor#'>g</span><span style='color:#logocolor#'>l</span><span style='color:#logocolor#'>e</span></p>"
+      ],
+      "searchbar": [
+        "<p style= 'text-align:center;font-size:16px;color:rgb(128,128,128);'> <i class='fa fa-search' aria-hidden='true'></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search Google or type a URL&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class='fa fa-microphone' aria-hidden='true'></i></p>"
+      ],
+      "results": [
+        "<table><thead><th style='font-size:14px; color:rgb(255,255,255);'>Hidden 1 extra txt</th><th style='text-align:left;font-size:15px;color:rgb(128,128,128);'>[myQ:#ask1#]#myQ# <i class='fa fa-i-cursor' aria-hidden='true'></i></th><th style='font-size:14px; color:rgb(255,255,255);'>Hidden 3 extra txt</th></thead><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchQ#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td><tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchQ#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></tr><td style='font-size:14px; color:rgb(255,255,255);'>invisibke1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchQ#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td><tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchQ#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchQ#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></table>",
+        "<table><thead><th style='font-size:14px; color:rgb(255,255,255);'>Hidden 1 extra txt</th><th style='text-align:left;font-size:15px;color:rgb(128,128,128);'>[myX:#ask2#]#myX# <i class='fa fa-i-cursor' aria-hidden='true'></i></th><th style='font-size:14px; color:rgb(255,255,255);'>Hidden 3 extra txt</th></thead><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchX#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td><tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchX#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></tr><td style='font-size:14px; color:rgb(255,255,255);'>invisibke1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchX#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td><tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchX#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchX#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></table>",
+        "<table><thead><th style='font-size:14px; color:rgb(255,255,255);'>Hidden 1 extra txt</th><th style='text-align:left;font-size:15px;color:rgb(128,128,128);'>[myY:#ask3#]#myY# <i class='fa fa-i-cursor' aria-hidden='true'></i></th><th style='font-size:14px; color:rgb(255,255,255);'>Hidden 3 extra txt</th></thead><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchY#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td><tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchY#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></tr><td style='font-size:14px; color:rgb(255,255,255);'>invisibke1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchY#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td><tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchY#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></tr><td style='font-size:14px; color:rgb(255,255,255);'>invisible1</td><td style='font-size:14px; color:rgb(80,80,80);'>#searchY#</td><td style='font-size:14px; color:rgb(255,255,255);'>invisible3</td></table>"
+      ],
+      "buttons": [
+        "<p style='text-align:center;'><span style='font-size:14px; '> Google #blank# </span>&nbsp;&nbsp;<span style='font-size:14px;'> I'm Feeling #Lucky# </span></p>"
+      ],
+      "logocolor": [
+        "rgb(66,133,244)",
+        "rgb(234,67,53)",
+        "rgb(251,188,5)",
+        "rgb(52,168,83)"
+      ],
+      "Lucky": [
+        "Lucky",
+        "Fortuitous",
+        "Fortunate",
+        "Favourable",
+        "Promising",
+        "Advantageous",
+        "Auspicious",
+        "Benign",
+        "Opportune",
+        "Hopeful",
+        "Serendipitous",
+        "Lucky",
+        "Profitable"
+      ],
+      "ask1": [
+        "is #person#",
+        "am i"
+      ],
+      "ask2": [
+        "where is",
+        "i cant find"
+      ],
+      "ask3": [
+        "does",
+        "will"
+      ],
+      "searchQ": [
+        "#myQ# #adj#",
+        "#myQ# going to #verb# #pnoun#",
+        "#myQ# missing #thing.a#",
+        "#myQ# my #distance# #person#"
+      ],
+      "searchX": [
+        "#myX# the #distance# #place#",
+        "#myX# #person.s# #place#",
+        "#myX# my #thing#",
+        "#myX# #person.s# #thing#"
+      ],
+      "searchY": [
+        "#myY# #symptom.a# cause death",
+        "#myY# my #thing# kill me",
+        "#myY# #person# #verb# #pnoun#"
+      ],
+      "symptom": [
+        "sore throat",
+        "mild fever",
+        "light rash",
+        "slight dizziness",
+        "low blood pressure",
+        "empty stomach",
+        "split end",
+        "yellow tooth",
+        "red eye",
+        "stray eyelash"
+      ],
+      "verb": [
+        "kill",
+        "eat",
+        "go to",
+        "find",
+        "catch",
+        "run towards",
+        "watch",
+        "bankrupt",
+        "live next to"
+      ],
+      "pnoun": [
+        "me",
+        "you",
+        "her",
+        "him",
+        "them",
+        "#person#"
+      ],
+      "adj": [
+        "stupid",
+        "nice",
+        "strange",
+        "on one",
+        "homeless",
+        "smart",
+        "failing classes",
+        "passing classes",
+        "dying",
+        "alive",
+        "going bankrupt",
+        "okay?",
+        "my next of kin",
+        "married",
+        "living next to me",
+        "a vampire",
+        "human"
+      ],
+      "thing": [
+        "homework",
+        "car keys",
+        "phone",
+        "laptop",
+        "house",
+        "diagnosis"
+      ],
+      "person": [
+        "your mum",
+        "obama",
+        "elon musk",
+        "christpher luxon",
+        "ethan plaut",
+        "snoop dog",
+        "my neighbour",
+        "my dog",
+        "eminem",
+        "helen keller",
+        "beyonce",
+        "the Rock",
+        "jack black",
+        "dawn freshwater",
+        "princess diana",
+        "trump",
+        "margaret thatcher",
+        "aristotle",
+        "mickey mouse",
+        "yoda",
+        "britney spears",
+        "chatgpt",
+        "AI"
+      ],
+      "distance": [
+        "farthest",
+        "nearest",
+        "closest",
+        "smallest",
+        "largest"
+      ],
+      "place": [
+        "pizza place",
+        "gas station",
+        "resteraunt",
+        "police station",
+        "house",
+        "lake",
+        "university",
+        "tutorial",
+        "country"
+      ],
+      "blank": [
+        "Search",
+        "Images",
+        "View",
+        "Finder",
+        "Search",
+        "Search",
+        "Earth",
+        "Knows",
+        "Answers",
+        "Overview"
+      ]
+    }
+  }
+]

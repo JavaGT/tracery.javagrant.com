@@ -26,10 +26,19 @@
       <div class="toolbar-sep"></div>
 
       <button class="toolbar-btn" id="btn-load" title="Load grammar from .json file">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M14 10v3a1 1 0 01-1 1H3a1 1 0 01-1-1v-3M8 2v8M5 7l3 3 3-3" />
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"></path>
         </svg>
         <span>Load</span>
+      </button>
+
+      <button class="toolbar-btn" id="btn-save" title="Save grammar to .json file (Ctrl+S)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path>
+          <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path>
+          <path d="M7 3v4a1 1 0 0 0 1 1h7"></path>
+        </svg>
+        <span>Save</span>
       </button>
 
       <button class="toolbar-btn" id="btn-examples" title="Browse example grammars">
@@ -40,13 +49,6 @@
           <rect x="9" y="9" width="5" height="5" rx="1"/>
         </svg>
         <span>Examples</span>
-      </button>
-
-      <button class="toolbar-btn" id="btn-save" title="Save grammar to .json file (Ctrl+S)">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M14 10v3a1 1 0 01-1 1H3a1 1 0 01-1-1v-3M8 14V6M5 9l3-3 3 3" />
-        </svg>
-        <span>Save</span>
       </button>
 
       <button class="toolbar-btn" id="btn-format" title="Format JSON (Ctrl+Shift+F)">
@@ -77,9 +79,10 @@
       </button>
 
       <button class="toolbar-btn" id="btn-help" title="Open Help & Documentation">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-          <circle cx="8" cy="8" r="7"/>
-          <path d="M8 12v.01M6.5 5.5c0-1 3-1 3 0s-1 2-1.5 2v1.5"/>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
         <span>Help</span>
       </button>
@@ -236,37 +239,51 @@
 
   <!-- ── Share modal ─────────────────────────────── -->
   <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal">
-      <h3 id="modal-title">Share Grammar</h3>
-      <p>This URL encodes your full grammar + CSS. Share it to let others open your exact grammar in Tracery Studio.</p>
-      <input class="modal-input" id="modal-url" type="text" readonly onclick="this.select()">
-      <div class="modal-actions">
-        <button class="modal-btn" id="btn-modal-close">Close</button>
-        <button class="modal-btn primary" id="btn-modal-copy">Copy URL</button>
+    <div class="examples-modal" style="max-width: 500px">
+      <div class="examples-header">
+        <div>
+          <h3 id="modal-title">Share Grammar</h3>
+          <p class="examples-subtitle">This URL encodes your full grammar + CSS. Share it to let others open your exact grammar in Tracery Studio.</p>
+        </div>
+        <button class="icon-btn examples-close" id="btn-modal-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <div style="padding: 20px 22px">
+        <input class="modal-input" id="modal-url" type="text" readonly onclick="this.select()">
+        <div class="modal-actions" style="margin-top:0">
+          <button class="modal-btn primary" id="btn-modal-copy">Copy URL</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- ── Settings modal ─────────────────────────────── -->
   <div id="settings-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-    <div class="modal settings-modal">
-      <h3 id="settings-title">Settings</h3>
-      <p>Theme controls app chrome only. Rendered Tracery output keeps using your content CSS.</p>
-      <label class="settings-row" for="settings-theme-select">
-        <span>Theme</span>
-        <select id="settings-theme-select" class="settings-select">
-          <option value="auto">Auto (System)</option>
-          <option value="light">Light (Override)</option>
-          <option value="dark">Dark (Override)</option>
-          <option value="pink-pop">Pink-pop</option>
-          <option value="noir">Noir</option>
-          <option value="academic">Academic</option>
-          <option value="arcade">Arcade</option>
-          <option value="vscode-dark-plus">VS Code Dark+</option>
-        </select>
-      </label>
-      <div class="modal-actions">
-        <button class="modal-btn" id="btn-settings-close">Close</button>
+    <div class="examples-modal" style="max-width: 420px">
+      <div class="examples-header">
+        <div>
+          <h3 id="settings-title">Settings</h3>
+          <p class="examples-subtitle">Theme controls app chrome only. Rendered Tracery output keeps using your content CSS.</p>
+        </div>
+        <button class="icon-btn examples-close" id="btn-settings-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <div style="padding: 20px 22px">
+        <label class="settings-row" for="settings-theme-select">
+          <span>Theme</span>
+          <select id="settings-theme-select" class="settings-select">
+            <option value="auto">Auto (System)</option>
+            <option value="light">Light (Override)</option>
+            <option value="dark">Dark (Override)</option>
+            <option value="pink-pop">Pink-pop</option>
+            <option value="noir">Noir</option>
+            <option value="academic">Academic</option>
+            <option value="arcade">Arcade</option>
+            <option value="vscode-dark-plus">VS Code Dark+</option>
+          </select>
+        </label>
       </div>
     </div>
   </div>
@@ -296,10 +313,19 @@
 
   <!-- ── Help modal ─────────────────────────────── -->
   <div id="help-overlay" role="dialog" aria-modal="true" aria-labelledby="help-title">
-    <div class="modal help-modal" style="max-height: 85vh; overflow-y: auto; max-width: 600px; width: 90vw;">
-      <h3 id="help-title">Documentation</h3>
+    <div class="examples-modal" style="max-height: 85vh; overflow-y: auto; max-width: 600px; width: 90vw;">
       
-      <div class="help-content doc-content">
+      <div class="examples-header" style="position: sticky; top: 0; background: var(--color-surface2); z-index: 10;">
+        <div>
+          <h3 id="help-title">Documentation</h3>
+          <p class="examples-subtitle">Learn how to build more complex features into your grammars.</p>
+        </div>
+        <button class="icon-btn examples-close" id="btn-help-close" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+
+      <div class="help-content doc-content" style="padding: 20px 22px;">
         <h4>Content Output Sanitization</h4>
         <p>To ensure safety when viewing generated stories, Tracery Studio limits the HTML features that can appear in the output. The complete list of whitelisted elements is:</p>
         
@@ -327,7 +353,7 @@
           <li style="margin-bottom: 1rem;">
             <strong><code>scrollto:</code></strong> <br> Use CSS selectors to create page jump links. <br>
             <code>&lt;a href="scrollto:.chapter-2"&gt;Jump to Chapter 2&lt;/a&gt;</code> <br>
-            <small style="opacity: 0.8;">Hint: use <i>scroll-margin-top</i> to ensure jump links don't jump underneath sticky headers.</small>
+            <small style="opacity: 0.8;">Hint: use the <i>scroll-margin-top</i> css property on your target element to ensure targets don't end up hidden behind sticky headers.</small>  
           </li>
           <li>
             <strong><code>setorigin:</code></strong> <br> Use Tracery symbol IDs to re-roll the entire document starting from a new symbol. This behaves like a Choose-Your-Own-Adventure page jump! <br>
@@ -335,15 +361,14 @@
           </li>
         </ul>
       </div>
-
-      <div class="modal-actions" style="margin-top: 1.5rem;">
-        <button class="modal-btn" id="btn-help-close">Close</button>
-      </div>
     </div>
   </div>
 
   <!-- ── Toast ──────────────────────────────────── -->
   <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- tracery-grammar npm package shim: loads CJS package synchronously, sets window.tracery -->
+  <script src="js/tracery-npm-shim.js"></script>
 
   <script type="module" src="app.js"></script>
   <script type="module">

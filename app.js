@@ -8,7 +8,12 @@ function setForceDisableSyntaxHighlighting(val) {
 }
 // app.js - Tracery Studio main application
 import tracery from './js/tracery/main.js';
-const { createGrammar } = tracery;
+// Wrap createGrammar to automatically add the English modifiers required by tracery-grammar.
+function createGrammar(obj) {
+  const grammar = tracery.createGrammar(obj);
+  grammar.addModifiers(tracery.baseEngModifiers);
+  return grammar;
+}
 import { sanitizeHTML, isLikelyHTML, ALLOWED_TAGS, ALLOWED_ATTRS, ALLOWED_CSS_PROPS } from './js/outputSanitizer.js';
 import { buildShareURL, loadFromURL, CSS_EMBED_KEY } from './js/stateCodec.js';
 
@@ -676,6 +681,7 @@ function render() {
     if (rerollStat) rerollStat.textContent = `↺ ${rerollCount}`;
   } catch (e) {
     outputEl.textContent = `Runtime error: ${e.message}`;
+    console.log(e)
   }
 }
 
@@ -909,7 +915,7 @@ function formatCss(raw) {
   // Insert newlines and indentation
   s = s.replace(/\s*\{\s*/g, ' {\n  ');
   s = s.replace(/;\s*/g, ';\n  ');
-  s = s.replace(/\s*\}\s*/g, '\n}\n\n'); 
+  s = s.replace(/\s*\}\s*/g, '\n}\n\n');
   // Cleanup
   s = s.replace(/\n\s*\n/g, '\n\n');
   s = s.replace(/  \n}/g, '\n}');
@@ -1164,336 +1170,8 @@ function showToast(msg) {
 
 // ── Examples ──────────────────────────────────────────────────────
 
-const EXAMPLES = [
-  // ── Tracery features ───────────────────────────────────────────
-  {
-    id: 'tracery-basics',
-    category: 'Tracery',
-    title: 'Symbols & Rules',
-    description: 'Core Tracery: define symbols and reference them with #symbol# to build varied sentences.',
-    grammar: {
-      "origin": ["<p class='out'>#sentence#</p>", "<p class='out'>#sentence# #sentence#</p>"],
-      "sentence": [
-        "The #adj# #animal# #verb# across the #place#.",
-        "A #adj# #animal# once told me: \"#phrase#\".",
-        "Deep in the #place#, a #adj# #animal# was #verb#."
-      ],
-      "adj": ["mysterious", "ancient", "tiny", "glowing", "restless"],
-      "animal": ["fox", "wolf", "moth", "raven", "tortoise"],
-      "verb": ["wandered", "slept", "sang", "waited", "danced"],
-      "place": ["silver forest", "ruined archive", "fog library", "quiet valley"],
-      "phrase": ["nothing is ever lost", "keep moving forward", "every door opens twice"],
-      "_cssStyles": ".out{font-family:Georgia,serif;font-size:1.15rem;line-height:1.9;padding:1.2rem;max-width:55ch;color:#2a2a2a}"
-    }
-  },
-  {
-    id: 'tracery-modifiers',
-    category: 'Tracery',
-    title: 'Modifiers',
-    description: 'Use .capitalize, .s (plural) and .ed after a symbol to transform its output automatically.',
-    grammar: {
-      "origin": ["<div class='mod-demo'><h2>Modifiers in Action</h2>#example##example##example#</div>"],
-      "example": [
-        "<p><code>#animal#</code> → <b>#animal.capitalize#</b> <em>(capitalize)</em></p>",
-        "<p><code>#animal#</code> → <b>#animal.s#</b> <em>(plural)</em></p>",
-        "<p><code>#verb#</code> → <b>#verb.ed#</b> <em>(past tense)</em></p>",
-        "<p><code>#adj#</code> → <b>#adj.capitalize#</b> <em>(capitalize)</em></p>"
-      ],
-      "animal": ["fox", "wolf", "moth", "raven", "dragon"],
-      "verb": ["wander", "dance", "sleep", "run", "listen"],
-      "adj": ["ancient", "mysterious", "gentle", "electric"],
-      "_cssStyles": ".mod-demo{font-family:sans-serif;padding:1rem;max-width:55ch} h2{font-size:1.1rem;margin-bottom:.8rem} p{line-height:2;margin:.2rem 0;border-bottom:1px solid #eee;padding:.2rem 0} code{background:#f0f0f0;padding:1px 6px;border-radius:4px;font-size:.9em} em{color:#888;font-size:.9em}"
-    }
-  },
-  {
-    id: 'tracery-push-pop',
-    category: 'Tracery',
-    title: 'Set Variables',
-    description: 'Use [name:#symbol#] inside a # expression to set a variable and reuse it consistently.',
-    grammar: {
-      "origin": ["#[hero:#name#][heroPet:#animal#]story#"],
-      "story": [
-        "<div class='tale'><h2>The Tale of #hero#</h2><p>#hero# had a pet #heroPet# named #heroPet.capitalize#-Too.</p><p>One day, #hero# and the #heroPet# ventured into the #place#.</p><p>Nobody believed #hero# when they returned — but the #heroPet# knew the truth.</p></div>"
-      ],
-      "name": ["Ash", "Ember", "River", "Sage", "Quinn", "Wren"],
-      "animal": ["fox", "raven", "tortoise", "moth", "lynx"],
-      "place": ["silver forest", "sunken archive", "glass canyon", "fog vale"],
-      "_cssStyles": ".tale{font-family:Georgia,serif;padding:1.2rem;max-width:52ch;line-height:1.8} h2{font-size:1.3rem;margin-bottom:.6rem;color:#3a3a6a} p{margin:.5rem 0}"
-    }
-  },
-  {
-    id: 'tracery-nested',
-    category: 'Tracery',
-    title: 'Nested Symbols',
-    description: 'Symbols can reference other symbols to build complex, layered outputs from simple rules.',
-    grammar: {
-      "origin": ["<div class='news'><h2>🗞 #headline#</h2><p>#lead#</p><p>#follow#</p></div>"],
-      "headline": ["Local #creature.capitalize# #verb.ed# in #place#", "#place.capitalize# Shocked by #adj.capitalize# #creature.capitalize#", "#adj.capitalize# #creature.capitalize# to Attend #event#"],
-      "lead": ["Witnesses described the #creature# as #adv# #adj#.", "Officials say the #creature# appeared on #day# without warning.", "The #adj# #creature# was first spotted near the old #place#."],
-      "follow": ["No comment has been issued by the local #who#.", "#who.capitalize# is expected to hold a press conference on #day#.", "Further updates are expected from the #who# by end of week."],
-      "creature": ["moth", "fox", "tortoise", "raven", "newt"],
-      "adj": ["glowing", "enormous", "ancient", "confused", "tiny"],
-      "adv": ["surprisingly", "visibly", "undeniably", "reportedly"],
-      "verb": ["appear", "wander", "lecture", "vote", "escape"],
-      "place": ["town hall", "the market", "city park", "the old mill"],
-      "event": ["the annual gala", "a local festival", "the summit", "opening night"],
-      "who": ["mayor", "committee", "council", "spokesperson"],
-      "day": ["Monday", "Thursday", "next week", "this afternoon"],
-      "_cssStyles": ".news{font-family:Georgia,serif;padding:1.2rem;max-width:55ch;border-left:4px solid #3a3a6a;line-height:1.8} h2{font-size:1.2rem;margin-bottom:.6rem;color:#3a3a6a} p{margin:.5rem 0;color:#333}"
-    }
-  },
-  // ── HTML & CSS features ────────────────────────────────────────
-  {
-    id: 'text-decoration',
-    category: 'Text Styles',
-    title: 'Text Decoration',
-    description: 'Bold, italic, underline, strikethrough and coloured text using HTML tags and inline CSS.',
-    grammar: {
-      "origin": ["<div class='story'><h2>#headline#</h2><p>#sentence#</p><p>#more#</p></div>"],
-      "headline": ["Today's Story", "Breaking News", "A Short Tale"],
-      "sentence": [
-        "The <b>#adj#</b> explorer was <i>absolutely</i> <u>determined</u>.",
-        "She had a <span class='col1'>#adj#</span> idea that changed everything.",
-        "<b><i>Everyone agreed:</i></b> the plan was <s>terrible</s> brilliant."
-      ],
-      "more": [
-        "Her notes were <mark>#adj#</mark> and full of <u>underlines</u>.",
-        "The sign read: <span class='col2'>#adj# Zone — Proceed With Care</span>."
-      ],
-      "adj": ["mysterious", "ancient", "glowing", "tiny", "electric"],
-      "_cssStyles": ".story{font-family:Georgia,serif;font-size:1rem;line-height:1.8;padding:1.2rem;max-width:52ch} h2{font-size:1.3rem;margin-bottom:.6rem} p{margin:.4rem 0} mark{background:rgb(255,241,118);padding:0 2px} .col1{color:crimson;font-weight:bold} .col2{color:royalblue;text-decoration:underline}"
-    }
-  },
-  {
-    id: 'text-alignment',
-    category: 'Text Styles',
-    title: 'Text Alignment',
-    description: 'Left, centre, and right text alignment using CSS text-align.',
-    grammar: {
-      "origin": ["<div class='page'>#block#<br>#block#<br>#block#</div>"],
-      "block": [
-        "<p style='text-align:left'><b>Left:</b> #phrase#</p>",
-        "<p style='text-align:center'><b>Centre:</b> #phrase#</p>",
-        "<p style='text-align:right'><b>Right:</b> #phrase#</p>",
-        "<p class='fancy'>#phrase#</p>"
-      ],
-      "phrase": ["The stars were bright.", "A fox ran past.", "Something strange happened.", "Nobody noticed."],
-      "_cssStyles": ".page{font-family:sans-serif;font-size:1rem;line-height:2;padding:1rem;max-width:50ch} .fancy{text-align:center;font-style:italic;color:slateblue}"
-    }
-  },
-  {
-    id: 'headers-links',
-    category: 'Structure',
-    title: 'Headers & Links',
-    description: 'HTML heading levels h1-h3, paragraphs, and anchor links.',
-    grammar: {
-      "origin": ["<article class='doc'><h1>#title#</h1><h2>#subtitle#</h2><p>#body#</p><p>Read more at <a href='https://example.com'>example.com</a></p></article>"],
-      "title": ["The Great Discovery", "An Unexpected Journey", "Secrets of the Deep"],
-      "subtitle": ["Chapter One: The Beginning", "Part One: Setting Off", "Introduction: What Lies Ahead"],
-      "body": [
-        "It all started on a <b>#adj#</b> afternoon when nobody expected anything unusual.",
-        "The explorer opened the door and found something <i>#adj#</i> inside.",
-        "Years of waiting finally paid off — the answer was <u>#adj#</u> simple."
-      ],
-      "adj": ["quiet", "strange", "golden", "electric", "forgotten"],
-      "_cssStyles": ".doc{font-family:Georgia,serif;padding:1.2rem;max-width:55ch;line-height:1.7} h1{font-size:1.6rem;margin-bottom:.2rem} h2{font-size:1.1rem;color:dimgray;font-weight:normal;margin-bottom:.8rem} a{color:royalblue} p{margin:.5rem 0}"
-    }
-  },
-  {
-    id: 'images',
-    category: 'Images',
-    title: 'Images',
-    description: 'Display images with custom width, height, border-radius and alignment.',
-    grammar: {
-      "origin": ["<div class='gallery'><h2>#caption#</h2>#img#<p>#desc#</p></div>"],
-      "img": [
-        "<img src='https://picsum.photos/seed/#seed#/400/250' width='400' height='250' alt='photo' class='photo'>",
-        "<img src='https://picsum.photos/seed/#seed#/200/200' width='200' height='200' alt='photo' class='circle'>",
-        "<img src='https://picsum.photos/seed/#seed#/500/200' width='500' height='200' alt='photo' class='banner'>"
-      ],
-      "seed": ["forest", "city", "ocean", "mountain", "sky", "river"],
-      "caption": ["A Quiet Moment", "Into the Wild", "Urban Life", "The Horizon"],
-      "desc": ["This photo captures something unexpected.", "Every image tells a story.", "Look closer — there is always more to see."],
-      "_cssStyles": ".gallery{font-family:sans-serif;padding:1rem;text-align:center} h2{font-size:1.2rem;margin-bottom:.6rem} .photo{border-radius:8px;display:block;margin:0 auto} .circle{border-radius:50%;display:block;margin:0 auto} .banner{border-radius:4px;display:block;margin:0 auto;width:100%;height:auto}"
-    }
-  },
-  {
-    id: 'colors-backgrounds',
-    category: 'Colors',
-    title: 'Colors & Backgrounds',
-    description: 'Change the page background, text colours and highlights using CSS class names.',
-    grammar: {
-      "origin": ["<div class='page bg-#theme#'><h1>#title#</h1><p>#body#</p></div>"],
-      "theme": ["night", "day", "sunset"],
-      "title": ["A Colourful World", "Design With Style", "Make It Pop"],
-      "body": [
-        "<span class='accent'>#phrase#</span> — colour makes all the difference.",
-        "Try <b class='accent'>bold colour</b> to emphasise your ideas.",
-        "A <span class='highlight'>#phrase#</span> stands out immediately."
-      ],
-      "phrase": ["this word", "a key idea", "the main point", "something important"],
-      "_cssStyles": ".page{font-family:sans-serif;padding:1.5rem;max-width:52ch;line-height:1.8;border-radius:8px} .bg-night{background:rgb(26,26,46);color:rgb(224,224,224)} .bg-day{background:rgb(255,253,231);color:rgb(51,51,51)} .bg-sunset{background:rgb(255,112,67);color:rgb(255,243,224)} h1{margin-bottom:.6rem} .accent{color:gold;font-weight:bold} .highlight{background:rgba(255,255,100,0.4);padding:0 4px}"
-    }
-  },
-  {
-    id: 'layout-columns',
-    category: 'Layout',
-    title: 'Float Layout',
-    description: 'Float elements left and right to create simple two-column layouts.',
-    grammar: {
-      "origin": ["<div class='page'><h2>#title#</h2><div class='row'><div class='left-col'>#left#</div><div class='right-col'>#right#</div><div class='clear'></div></div></div>"],
-      "title": ["Two Column Layout", "Side by Side", "Float Example"],
-      "left": ["<p><b>Left:</b> #phrase#</p><p>#phrase2#</p>"],
-      "right": ["<p style='text-align:right'><b>Right:</b> #phrase#</p><p style='text-align:right;font-style:italic'>#phrase2#</p>"],
-      "phrase": ["The quick fox jumped over the fence.", "Always check both sides of the argument.", "Details matter more than you think."],
-      "phrase2": ["Consider every option.", "Think it through carefully.", "Look at the big picture."],
-      "_cssStyles": ".page{font-family:sans-serif;padding:1rem;max-width:60ch} h2{margin-bottom:.8rem} .row{overflow:hidden} .left-col{float:left;width:48%;line-height:1.7} .right-col{float:right;width:48%;line-height:1.7} .clear{clear:both}"
-    }
-  },
-  {
-    id: 'table',
-    category: 'Layout',
-    title: 'Tables',
-    description: 'Basic HTML tables with headers, rows and CSS styling.',
-    grammar: {
-      "origin": ["<div class='wrap'><h2>#title#</h2><table class='tbl'><thead><tr><th>Name</th><th>Type</th><th>Score</th></tr></thead><tbody>#row##row##row#</tbody></table></div>"],
-      "title": ["High Scores", "Character Stats", "Creature Catalogue", "Mission Log"],
-      "row": ["<tr><td>#name#</td><td>#type#</td><td>#score#</td></tr>"],
-      "name": ["Ash", "Blaze", "Cedar", "Dusk", "Ember", "Frost"],
-      "type": ["Explorer", "Builder", "Scout", "Keeper", "Watcher"],
-      "score": ["92", "78", "85", "61", "99", "73"],
-      "_cssStyles": ".wrap{font-family:sans-serif;padding:1rem} h2{margin-bottom:.6rem} .tbl{border-collapse:collapse;width:100%} .tbl th{background:rgb(58,58,106);color:white;padding:8px 12px;text-align:left} .tbl td{padding:8px 12px;border-bottom:1px solid rgb(221,221,221)} .tbl tr:nth-child(even) td{background:rgb(245,245,245)}"
-    }
-  },
-  // ── Coherent-theme examples ────────────────────────────────────
-  {
-    id: 'scrollto-nav',
-    category: 'Interactive',
-    title: 'Scrolling Navigation',
-    description: 'Use scrollto: followed by a CSS selector to create jump-links within the generated document. Great for long stories or encyclopedias. Notice the scroll-margin-top CSS so titles aren\'t trapped under the sticky nav!',
-    grammar: {
-      "origin": ["<main><nav><b>Contents:</b> <a href='scrollto:%23chap1'>Chap 1</a> | <a href='scrollto:%23chap2'>Chap 2</a> | <a href='scrollto:.footer'>Footer</a></nav> <section id='chap1'><h2>Chapter 1</h2><p>This is a long section. #content#</p></section> <section id='chap2'><h2>Chapter 2</h2><p>This is the second section. #content#</p></section> <footer class='footer'>The End <a href='scrollto:main'>↑ Top</a></footer></main>"],
-      "content": ["Far far away, behind the word mountains, far from the countries Vokalia and Consonantia. ", "Separated they live in Bookmarksgrove right at the coast of the Semantics, a large language ocean. ", "A small river named Duden flows by their place and supplies it with the necessary regelialia. "],
-      "_cssStyles": "main{font-family:sans-serif;max-width:40ch;padding:1rem;line-height:1.6} nav{position:sticky;top:0;background:#eef2ff;padding:1rem;border-radius:6px;margin-bottom:2rem;display:flex;gap:.5rem} section{min-height:80vh;scroll-margin-top:5rem} h2{color:slateblue;border-bottom:2px solid} footer{margin-top:4rem;padding:2rem;background:#334;color:#fff;text-align:center} a{color:royalblue;text-decoration:none;font-weight:bold} a:hover{text-decoration:underline}"
-    }
-  },
+let EXAMPLES = [];
 
-  {
-    id: 'day-night-variables',
-    category: 'Coherent Themes',
-    title: 'Day & Night (Variables)',
-    description: 'Use [var:#symbol#] to lock a time-of-day theme so creatures, light, and mood are always consistent within each generated story.',
-    grammar: {
-      "origin": [
-        "#[time:day][skyWord:golden][animalPool:dayAnimal][ambiance:warm and still]scene#",
-        "#[time:night][skyWord:silver][animalPool:nightAnimal][ambiance:cool and hushed]scene#"
-      ],
-      "scene": "<div class='tale'><h2>A #time# in the #place#</h2><p>The #skyWord# light lay across the #place#. The air was #ambiance#.</p><p>A <b>#animalPool#</b> moved through the undergrowth. #moment#</p><p class='close'>#close#</p></div>",
-      "dayAnimal": ["fox", "deer", "hawk", "bumblebee", "robin"],
-      "nightAnimal": ["owl", "moth", "bat", "firefly", "hedgehog"],
-      "place": ["silver forest", "old meadow", "valley ridge", "riverside path"],
-      "moment": [
-        "For a long moment, nothing else moved.",
-        "It paused, then continued on its way.",
-        "The #place# felt like it was holding its breath."
-      ],
-      "close": [
-        "By the time I looked again, it was gone.",
-        "The #time# settled around it like a cloak.",
-        "That is how I remember it: the #skyWord# light, the silence, and the #animalPool#."
-      ],
-      "_cssStyles": ".tale{font-family:Georgia,serif;padding:1.4rem;max-width:54ch;line-height:1.85} h2{font-size:1.25rem;color:slateblue;margin-bottom:.5rem} p{margin:.5rem 0} .close{font-style:italic;color:dimgray;margin-top:.8rem}"
-    }
-  },
-  {
-    id: 'day-night-structural',
-    category: 'Coherent Themes',
-    title: 'Day & Night (Structure)',
-    description: 'A second approach: separate top-level symbols (dayStory, nightStory) each with their own themed word pools — no variables needed.',
-    grammar: {
-      "origin": ["#dayStory#", "#nightStory#"],
-      "dayStory": "<div class='card day'><h2>☀ A #dayAdj# #dayTime#</h2><p>The #dayWeather# sky stretched wide. A <b>#dayAnimal#</b> crossed the #dayPlace#.</p><p>#dayMoment#</p></div>",
-      "nightStory": "<div class='card night'><h2>🌙 A #nightAdj# #nightTime#</h2><p>The #nightWeather# sky was deep and wide. A <b>#nightAnimal#</b> moved through the #nightPlace#.</p><p>#nightMoment#</p></div>",
-      "dayAdj": ["bright", "warm", "clear", "breezy", "golden"],
-      "dayTime": ["morning", "afternoon", "noon", "sunrise"],
-      "dayWeather": ["cloudless blue", "pale hazy", "brilliant white"],
-      "dayAnimal": ["fox", "deer", "robin", "hawk", "bumblebee"],
-      "dayPlace": ["open field", "sun-warmed hillside", "meadow path", "riverbank"],
-      "dayMoment": ["The warmth made everything slow and easy.", "A distant lark sang once, then was quiet.", "Dust drifted in the sunlit air."],
-      "nightAdj": ["still", "cool", "pale", "misty", "quiet"],
-      "nightTime": ["midnight", "evening", "late hour", "small hours"],
-      "nightWeather": ["star-scattered", "overcast", "moonlit"],
-      "nightAnimal": ["owl", "moth", "bat", "firefly", "hedgehog"],
-      "nightPlace": ["dark woodland", "moonlit clearing", "quiet lane", "fog-filled valley"],
-      "nightMoment": ["Somewhere an owl called, once.", "The cold settled in gently.", "Nothing moved for a long while."],
-      "_cssStyles": ".card{font-family:Georgia,serif;padding:1.4rem;max-width:54ch;line-height:1.85;border-radius:8px} .day{background:rgb(255,251,230);color:rgb(60,50,20)} .day h2{color:rgb(180,100,0)} .night{background:rgb(18,18,35);color:rgb(200,200,220)} .night h2{color:rgb(150,160,255)} p{margin:.5rem 0}"
-    }
-  },
-  {
-    id: 'seasons-structural',
-    category: 'Coherent Themes',
-    title: 'Four Seasons',
-    description: 'Each season symbol draws only from season-appropriate imagery — a structural approach to thematic coherence without any variables.',
-    grammar: {
-      "origin": ["#spring#", "#summer#", "#autumn#", "#winter#"],
-      "spring": "<div class='s spring'><h2>🌸 Spring</h2><p>#springOpening# A <b>#springCreature#</b> appeared among the #springPlant#.</p><p>#springClose#</p></div>",
-      "summer": "<div class='s summer'><h2>☀ Summer</h2><p>#summerOpening# A <b>#summerCreature#</b> rested in the shade of the #summerPlant#.</p><p>#summerClose#</p></div>",
-      "autumn": "<div class='s autumn'><h2>🍂 Autumn</h2><p>#autumnOpening# A <b>#autumnCreature#</b> moved beneath the #autumnPlant#.</p><p>#autumnClose#</p></div>",
-      "winter": "<div class='s winter'><h2>❄ Winter</h2><p>#winterOpening# A <b>#winterCreature#</b> crossed the #winterPlace#.</p><p>#winterClose#</p></div>",
-      "springOpening": ["The air smelled of rain and new growth.", "Everything was beginning again."],
-      "springCreature": ["robin", "deer", "butterfly", "duckling"],
-      "springPlant": ["bluebells", "fresh grass", "blossoming hedgerows"],
-      "springClose": ["The world felt new and full of promise.", "Somewhere, something small was waking up."],
-      "summerOpening": ["The heat pressed down like a warm hand.", "The day stretched out endlessly."],
-      "summerCreature": ["fox", "grasshopper", "hawk", "bumblebee"],
-      "summerPlant": ["tall oak", "wild roses", "bramble"],
-      "summerClose": ["The afternoon refused to end.", "Even the breeze was warm."],
-      "autumnOpening": ["The smell of woodsmoke drifted through the air.", "Leaves turned and dropped one by one."],
-      "autumnCreature": ["squirrel", "raven", "hedgehog", "red deer"],
-      "autumnPlant": ["copper beech", "bare oak", "rustling hawthorn"],
-      "autumnClose": ["Something was ending, quietly and without fuss.", "The light came low and golden."],
-      "winterOpening": ["The ground was hard underfoot.", "Cold had settled in overnight."],
-      "winterCreature": ["fox", "heron", "fieldmouse", "barn owl"],
-      "winterPlace": ["frozen field", "grey hillside", "snow-covered lane"],
-      "winterClose": ["Silence was everywhere.", "The cold made everything sharp and clear."],
-      "_cssStyles": ".s{font-family:Georgia,serif;padding:1.4rem;max-width:54ch;line-height:1.85;border-radius:8px;margin:.5rem} h2{font-size:1.2rem;margin-bottom:.5rem} p{margin:.4rem 0} .spring{background:rgb(240,255,245);color:rgb(30,60,40)} .spring h2{color:rgb(60,140,80)} .summer{background:rgb(255,251,220);color:rgb(60,50,20)} .summer h2{color:rgb(190,120,0)} .autumn{background:rgb(255,245,235);color:rgb(60,35,10)} .autumn h2{color:rgb(180,80,20)} .winter{background:rgb(235,240,255);color:rgb(20,30,55)} .winter h2{color:rgb(80,100,180)}"
-    }
-  },
-  {
-    id: 'setorigin-adventure',
-    category: 'Interactive',
-    title: 'Choose Your Path',
-    description: 'Use setorigin: links to navigate between pages — click the links in the preview to move between scenes.',
-    grammar: {
-      "origin": ["<div class='page'><h2>🏚 The Old House</h2><p>You stand at the gate of an abandoned house. Rain falls softly. The front door is ajar. A path winds around the side.</p><nav><a href='setorigin:frontDoor'>Go through the front door →</a><a href='setorigin:garden'>Take the side path →</a></nav></div>"],
-      "frontDoor": ["<div class='page'><h2>🚪 The Hallway</h2><p>Inside it is dark and quiet. A staircase leads up. A door leads toward the kitchen.</p><nav><a href='setorigin:upstairs'>Go upstairs →</a><a href='setorigin:kitchen'>Go to the kitchen →</a><a href='setorigin:origin'>← Back outside</a></nav></div>"],
-      "garden": ["<div class='page'><h2>🌿 The Garden</h2><p>Overgrown and still. An old well sits at the centre. Something glints at the bottom, just out of reach.</p><nav><a href='setorigin:origin'>← Return to the gate</a></nav></div>"],
-      "upstairs": ["<div class='page'><h2>🕯 The Upper Landing</h2><p>A long corridor. Doors on either side, all closed. At the far end, a light flickers under one of them.</p><nav><a href='setorigin:frontDoor'>← Back downstairs</a></nav></div>"],
-      "kitchen": ["<div class='page'><h2>🍲 The Kitchen</h2><p>Cold and still. A pot on the stove. Through the cracked window you can see the overgrown garden.</p><nav><a href='setorigin:frontDoor'>← Back to the hallway</a><a href='setorigin:garden'>Step into the garden →</a></nav></div>"],
-      "_cssStyles": ".page{font-family:Georgia,serif;max-width:50ch;padding:1.4rem;line-height:1.8} h2{font-size:1.2rem;margin-bottom:.6rem;color:slateblue} p{margin:.4rem 0;color:rgb(40,40,50)} nav{margin-top:1.2rem;display:flex;flex-direction:column;gap:.5rem} nav a{color:royalblue;text-decoration:none;font-size:.95rem;padding:.3rem 0;border-bottom:1px solid rgb(220,225,240)} nav a:hover{color:rgb(100,50,200)}"
-    }
-  },
-
-    {
-    id: 'full-page',
-    category: 'Full Page',
-    title: 'Mini Web Page',
-    description: 'A complete styled page combining header, image, body text and footer.',
-    grammar: {
-      "origin": ["<div class='site'><header class='site-header'><h1>#title#</h1><p class='tagline'>#tagline#</p></header><main class='content'><img src='https://picsum.photos/seed/#seed#/600/240' width='600' height='240' alt='hero' class='hero-img'><p>#body#</p><p>#body#</p></main><footer class='site-footer'><p>#footer#</p></footer></div>"],
-      "title": ["The Wanderer's Log", "Deep Sea Notes", "Sky Journal", "Forest Archive"],
-      "tagline": ["Stories from beyond the map.", "Where curiosity leads.", "Notes from the edge of things."],
-      "seed": ["ocean", "forest", "desert", "mountain", "sky"],
-      "body": [
-        "It was the kind of day that makes you want to stop and notice everything around you.",
-        "Nobody had been here before — at least, that's what everyone assumed.",
-        "The light shifted slowly, turning everything a shade of gold and possibility."
-      ],
-      "footer": ["Written with Tracery Studio.", "An experiment in generative writing.", "Made by a student, for everyone."],
-      "_cssStyles": ".site{font-family:Georgia,serif;max-width:640px;margin:0 auto;color:rgb(34,34,34)} .site-header{background:rgb(44,62,80);color:white;padding:1.5rem;text-align:center} .site-header h1{font-size:1.8rem;margin:0 0 .3rem} .tagline{font-style:italic;color:rgb(170,170,170);margin:0} .content{padding:1.2rem;line-height:1.8} .hero-img{width:100%;height:auto;display:block;margin-bottom:1rem;border-radius:6px} .site-footer{background:rgb(236,240,241);padding:.8rem 1.2rem;font-size:.85rem;color:rgb(119,119,119);text-align:center} p{margin:.5rem 0}"
-    }
-  }
-];
 
 const examplesOverlay = document.getElementById('examples-overlay');
 const examplesGrid = document.getElementById('examples-grid');
@@ -1601,12 +1279,21 @@ function applyEditorVisibility(hidden) {
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
 
+  try {
+    const res = await fetch('examples.json');
+    if (res.ok) {
+      EXAMPLES = await res.json();
+    }
+  } catch (e) {
+    console.error('Failed to load examples.json', e);
+  }
+
   // Add syntax highlighting override toggle to settings
   if (settingsOverlay) {
     const row = document.createElement('label');
     row.className = 'settings-row';
     row.innerHTML = `<span>Disable syntax highlighting</span><input type="checkbox" id="force-disable-syntax-hl">`;
-    settingsOverlay.querySelector('.modal.settings-modal .modal-actions').before(row);
+    settingsOverlay.querySelector('.settings-row').parentNode.appendChild(row);
     const cb = row.querySelector('#force-disable-syntax-hl');
     cb.checked = forceDisableSyntaxHighlighting;
     cb.addEventListener('change', e => setForceDisableSyntaxHighlighting(e.target.checked));
@@ -1615,10 +1302,10 @@ async function init() {
   // Populate Help Documentation dynamically from the source of truth
   const elTags = document.getElementById('help-allowed-tags');
   if (elTags) elTags.textContent = Array.from(ALLOWED_TAGS).join(', ');
-  
+
   const elCss = document.getElementById('help-allowed-css');
   if (elCss) elCss.textContent = Array.from(ALLOWED_CSS_PROPS).join(', ');
-  
+
   const elAttrs = document.getElementById('help-allowed-attrs');
   if (elAttrs) elAttrs.textContent = Array.from(ALLOWED_ATTRS).join(', ');
 
@@ -1720,9 +1407,9 @@ async function init() {
   btnLoadFile.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
-    pushHistoryCheckpoint().catch(() => {});
-    handleFileLoad(file);
-  }
+      pushHistoryCheckpoint().catch(() => { });
+      handleFileLoad(file);
+    }
     e.target.value = '';
   });
 

@@ -98,7 +98,11 @@ export function parseTag(tag) {
     };
 }
 
-// Split a rule into sections
+// Split a rule into sections.
+// Sections can be:
+//   - strings (plain text)
+//   - parsed tag objects (from parseTag, for #symbol# expressions)
+//   - action objects { type: 'action', raw } for standalone [key:value] push/pop blocks
 export function parseRule(rule) {
     var sections = [];
     if (!(typeof rule == 'string' || rule instanceof String)) {
@@ -123,7 +127,6 @@ export function parseRule(rule) {
         }
         inTag = !inTag;
         start = end + 1;
-
     }
 
     for (var i = 0; i < rule.length; i++) {
@@ -131,10 +134,23 @@ export function parseRule(rule) {
 
         switch (c) {
             case '[':
+                // A '[' at level 0 outside a #...# tag starts a standalone action block.
+                // Flush any preceding text, then start collecting the action content.
+                if (lvl === 0 && !inTag) {
+                    var textBefore = rule.substring(start, i);
+                    if (textBefore.length > 0) sections.push(textBefore);
+                    start = i + 1; // content starts after '['
+                }
                 lvl++;
                 break;
             case ']':
                 lvl--;
+                // A ']' back at level 0 outside a tag closes the standalone action.
+                if (lvl === 0 && !inTag) {
+                    var actionContent = rule.substring(start, i);
+                    sections.push({ type: 'action', raw: actionContent });
+                    start = i + 1;
+                }
                 break;
             case '#':
                 if (lvl === 0) {
@@ -143,9 +159,7 @@ export function parseRule(rule) {
                 break;
             default:
                 break;
-
         }
-
     }
 
     if (lvl > 0) {
@@ -169,6 +183,7 @@ export function parseRule(rule) {
         return;
     }
 
+    // Flush any remaining text
     createSection(rule.length);
 
     return sections;
