@@ -7,7 +7,7 @@ function setForceDisableSyntaxHighlighting(val) {
   updateSyntaxHighlighting('css');
 }
 // app.js - Tracery Studio main application
-import tracery from './js/tracery/main.js';
+import tracery from './js/old_tracery/main.js';
 // Wrap createGrammar to automatically add the English modifiers required by tracery-grammar.
 function createGrammar(obj) {
   const grammar = tracery.createGrammar(obj);

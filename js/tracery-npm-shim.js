@@ -17,7 +17,7 @@
   // We load it via fetch+eval at startup — but that's async, so instead we
   // use a synchronous XMLHttpRequest (acceptable for a dev/local tool).
   const xhr = new XMLHttpRequest();
-  xhr.open('GET', '/node_modules/tracery-grammar/tracery.js', false /* sync */);
+  xhr.open('GET', '/js/tracery.js', false /* sync */);
   xhr.send();
 
   if (xhr.status !== 200) {
