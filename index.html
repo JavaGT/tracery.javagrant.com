@@ -250,11 +250,41 @@
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l10 10M13 3L3 13"/></svg>
         </button>
       </div>
-      <div style="padding: 20px 22px">
-        <input class="modal-input" id="modal-url" type="text" readonly onclick="this.select()">
-        <div class="modal-actions" style="margin-top:0">
-          <button class="modal-btn primary" id="btn-modal-copy">Copy URL</button>
+      <div style="padding: 22px">
+        <div class="share-origin-custom" style="margin-bottom: 20px;">
+          <label class="settings-row" for="share-origin-input" style="margin-bottom: 4px;">
+            <span>Starting Symbol</span>
+            <input type="text" id="share-origin-input" class="settings-select" style="font-family: var(--font-mono); font-size: 12px;" placeholder="origin" spellcheck="false" autocomplete="off">
+          </label>
+          <div id="share-origin-status" style="font-size: 10px; font-family: var(--font-mono); margin-top: 4px; display: none; padding: 2px 4px; border-radius: 4px;"></div>
         </div>
+
+        <div style="margin-bottom: 20px;">
+          <span style="font-size: 11px; color: var(--color-text-mid); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; display: block;">Live Preview URL</span>
+          <input class="modal-input" id="modal-url" type="text" readonly onclick="this.select()" style="font-size: 10px; background: color-mix(in srgb, var(--color-surface) 95%, white); border-color: var(--color-border); height: 32px; padding: 0 10px;">
+        </div>
+
+        <div class="modal-actions" style="flex-direction: column; gap: 10px; margin-top: 0">
+          <button class="modal-btn primary" id="btn-copy-preview" style="justify-content: center; width: 100%; display: flex; align-items: center; gap: 8px; height: 38px;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+               <rect x="2" y="2" width="12" height="12" rx="2"/>
+               <path d="M5 8h6M8 5v6" transform="rotate(45 8 8)"/>
+            </svg>
+            Copy Preview Link
+          </button>
+          <button class="modal-btn" id="btn-copy-editor" style="justify-content: center; width: 100%; display: flex; align-items: center; gap: 8px; height: 38px;">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="2" y="2" width="5" height="12" rx="1"/>
+              <path d="M9 5h5M9 8h5M9 11h5"/>
+            </svg>
+            Copy Editor Link
+          </button>
+        </div>
+        
+        <p class="examples-subtitle" style="margin-top: 16px; text-align: center; line-height: 1.6">
+          <strong>Preview Link:</strong> recipients see only the output.<br>
+          <strong>Editor Link:</strong> recipients see grammar + output.
+        </p>
       </div>
     </div>
   </div>

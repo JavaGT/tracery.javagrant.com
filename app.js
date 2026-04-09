@@ -104,10 +104,13 @@ const autoRerollCb = document.getElementById('auto-reroll-cb');
 const modalOverlay = document.getElementById('modal-overlay');
 const modalUrl = document.getElementById('modal-url');
 const btnModalClose = document.getElementById('btn-modal-close');
-const btnModalCopy = document.getElementById('btn-modal-copy');
 const settingsOverlay = document.getElementById('settings-overlay');
 const settingsThemeSelect = document.getElementById('settings-theme-select');
 const btnSettingsClose = document.getElementById('btn-settings-close');
+const btnCopyEditor = document.getElementById('btn-copy-editor');
+const btnCopyPreview = document.getElementById('btn-copy-preview');
+const shareOriginInput = document.getElementById('share-origin-input');
+const shareOriginStatus = document.getElementById('share-origin-status');
 
 const btnHelp = document.getElementById('btn-help');
 const helpOverlay = document.getElementById('help-overlay');
@@ -997,17 +1000,98 @@ function handleFileLoad(file) {
   reader.readAsText(file);
 }
 
-// ── Share ─────────────────────────────────────────────────────────
+async function updateShareModalPreviewUrl() {
+  const result = parseGrammar(grammarEditor.value);
+  if (!result.ok) return;
+
+  const shareOrigin = (shareOriginInput.value || '').trim();
+  const obj = cloneGrammarWithEmbeddedCss(result.obj, cssText);
+  const params = {};
+  
+  const finalOrigin = shareOrigin || 'origin';
+  if (finalOrigin !== 'origin') params.o = finalOrigin;
+  // Preview URL defaults to Wide View as it is the primary action
+  params.v = 'wide';
+
+  const url = await buildShareURL(obj, params);
+  modalUrl.value = url;
+}
+
+function validateShareOrigin() {
+  const symbol = (shareOriginInput.value || '').trim();
+  const status = shareOriginStatus;
+  const input = shareOriginInput;
+  
+  updateShareModalPreviewUrl();
+
+  if (!symbol) {
+    status.style.display = 'none';
+    input.style.borderColor = '';
+    return true; 
+  }
+
+  const exists = lastValidGrammar && symbol in lastValidGrammar;
+  status.style.display = 'block';
+  
+  if (exists) {
+    status.textContent = '✓ Symbol exists in grammar';
+    status.style.color = 'var(--color-success)';
+    status.style.background = 'color-mix(in srgb, var(--color-success) 10%, transparent)';
+    input.style.borderColor = 'var(--color-success)';
+    return true;
+  } else {
+    status.textContent = '⚠ Symbol not found in grammar';
+    status.style.color = 'var(--color-error)';
+    status.style.background = 'color-mix(in srgb, var(--color-error) 10%, transparent)';
+    input.style.borderColor = 'var(--color-error)';
+    return false;
+  }
+}
+
+async function copyShareUrl(viewMode = 'editor') {
+  const result = parseGrammar(grammarEditor.value);
+  if (!result.ok) {
+    showToast('Fix JSON errors before sharing');
+    return;
+  }
+
+  const shareOrigin = (shareOriginInput.value || '').trim();
+  const obj = cloneGrammarWithEmbeddedCss(result.obj, cssText);
+  const params = {};
+  
+  // Use the share-specific origin if provided, otherwise default to "origin"
+  const finalOrigin = shareOrigin || 'origin';
+  if (finalOrigin !== 'origin') params.o = finalOrigin;
+  if (viewMode === 'wide') params.v = 'wide';
+
+  const url = await buildShareURL(obj, params);
+  
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast('URL copied!');
+  } catch (err) {
+    // Fallback for older browsers or non-secure contexts
+    modalUrl.value = url;
+    modalUrl.select();
+    document.execCommand('copy');
+    showToast('Copied!');
+  }
+  
+  modalOverlay.classList.remove('open');
+}
+
 async function shareGrammar() {
   const result = parseGrammar(grammarEditor.value);
   if (!result.ok) {
     showToast('Fix JSON errors before sharing');
     return;
   }
-  const obj = cloneGrammarWithEmbeddedCss(result.obj, cssText);
-
-  const url = await buildShareURL(obj);
-  modalUrl.value = url;
+  
+  if (shareOriginInput) {
+    shareOriginInput.value = originSymbol === 'origin' ? '' : originSymbol;
+    validateShareOrigin();
+  }
+  
   modalOverlay.classList.add('open');
   markSaved();
 }
@@ -1410,17 +1494,20 @@ async function init() {
   if (btnExamplesClose) {
     btnExamplesClose.addEventListener('click', closeExamplesModal);
   }
-  if (examplesOverlay) {
-    examplesOverlay.addEventListener('click', (e) => {
-      if (e.target === examplesOverlay) closeExamplesModal();
+  if (btnCopyEditor) {
+    btnCopyEditor.addEventListener('click', () => copyShareUrl('editor'));
+  }
+  if (btnCopyPreview) {
+    btnCopyPreview.addEventListener('click', () => copyShareUrl('wide'));
+  }
+
+  if (shareOriginInput) {
+    shareOriginInput.addEventListener('input', () => {
+      validateShareOrigin();
     });
   }
-  btnModalCopy.addEventListener('click', () => {
-    navigator.clipboard.writeText(modalUrl.value)
-      .then(() => showToast('URL copied!'))
-      .catch(() => { modalUrl.select(); document.execCommand('copy'); showToast('Copied!'); });
-    modalOverlay.classList.remove('open');
-  });
+
+  btnModalClose.addEventListener('click', () => modalOverlay.classList.remove('open'));
   modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) modalOverlay.classList.remove('open');
   });

@@ -61,11 +61,22 @@ export async function decodeState(encoded) {
   return JSON.parse(json);
 }
 
-export async function buildShareURL(grammarObj) {
+export async function buildShareURL(grammarObj, extraParams = {}) {
   const encoded = await encodeState(grammarObj);
   const url = new URL(window.location.href);
   url.hash = '';
-  url.search = '?g=' + encoded;
+  // Start with the grammar parameter
+  const searchParams = new URLSearchParams();
+  searchParams.set('g', encoded);
+  
+  // Add any extra parameters (like 'o' for origin or 'v' for view)
+  for (const [key, value] of Object.entries(extraParams)) {
+    if (value) {
+      searchParams.set(key, value);
+    }
+  }
+  
+  url.search = '?' + searchParams.toString();
   return url.toString();
 }
 
